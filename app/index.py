@@ -11,8 +11,6 @@ bp = Blueprint('index', __name__)
 
 @bp.route('/')
 def index():
-    # get table of (pid, review)
-    reviews = Purchase.get_all_reviews()
     # get all available products for sale:
     products = Product.get_all(True)
     # find the products current user has bought:
@@ -24,5 +22,4 @@ def index():
     # render the page by adding information to the index.html file
     return render_template('index.html',
                            avail_products=products,
-                           purchase_history=purchases,
-                           all_reviews=reviews)
+                           purchase_history=purchases)

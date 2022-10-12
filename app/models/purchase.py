@@ -7,8 +7,6 @@ class Purchase:
         self.uid = uid
         self.pid = pid
         self.time_purchased = time_purchased
-        self.rating = rating
-        self.review = review
 
     @staticmethod
     def get(id):
@@ -31,14 +29,4 @@ ORDER BY time_purchased DESC
 ''',
                               uid=uid,
                               since=since)
-        return [Purchase(*row) for row in rows]
-
-    @staticmethod
-    def get_all_reviews(id=0):
-        rows = app.db.execute('''
-        SELECT id, uid, pid, time_purchased, rating, review
-        FROM Purchases
-        ''',
-        id=id
-        )
         return [Purchase(*row) for row in rows]
