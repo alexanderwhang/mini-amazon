@@ -16,8 +16,8 @@ class Purchase:
 with userOrders as (
     SELECT order_id
     from Orders
-    WHERE user_id = :id
-),
+    WHERE user_id = :user_id
+)
 select 
     userOrders.order_id as order_id, 
     Products.name as product_name, 
@@ -32,10 +32,9 @@ from
 where 
     Purchases.order_id = userOrders.order_id
     and Purchases.pid = Products.product_id
-    and user_id = :user_id
 ''',
                               user_id=user_id)
-        return Purchase(*(rows[0])) if rows is not None else None
+        return [Purchase(*row) for row in rows]
 
     @staticmethod
     def get_all_purchases_by_order(order_id):
@@ -51,9 +50,8 @@ from
     Products, 
     Purchases
 where 
-    Purchases.order_id = userOrders.order_id
+    Purchases.order_id = :order_id
     and Purchases.pid = Products.product_id
-    and order_id = :order_id
 ''',
                               order_id=order_id)
         return [Purchase(*row) for row in rows]
