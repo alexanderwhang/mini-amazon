@@ -1,7 +1,7 @@
 from flask import current_app as app
 
 
-class Purchase:
+class Order:
     def __init__(self, id, uid, pid, time_purchased, rating, review):
         self.id = id
         self.uid = uid
@@ -11,9 +11,9 @@ class Purchase:
     @staticmethod
     def get(id):
         rows = app.db.execute('''
-SELECT id, uid, pid, time_purchased
-FROM Purchases
-WHERE id = :id
+SELECT order_id, user_id, total_price, total_items, time_stamp
+FROM Orders
+WHERE order_id = :id
 ''',
                               id=id)
         return Purchase(*(rows[0])) if rows else None
@@ -21,11 +21,11 @@ WHERE id = :id
     @staticmethod
     def get_all_by_uid_since(uid, since):
         rows = app.db.execute('''
-SELECT id, uid, pid, time_purchased
+SELECT order_id, user_id, total_price, total_items, time_stamp
 FROM Purchases
-WHERE uid = :uid
-AND time_purchased >= :since
-ORDER BY time_purchased DESC
+WHERE user_id = :uid
+AND time_stamp >= :since
+ORDER BY time_stamp DESC
 ''',
                               uid=uid,
                               since=since)
