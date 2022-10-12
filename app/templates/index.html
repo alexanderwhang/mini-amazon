@@ -11,6 +11,8 @@
       <th scope="col">Product ID</th>
       <th scope="col">Product Name</th>
       <th scope="col">Price</th>
+      <th scope="col">Ratings</th>
+      <th scope="col">Reviews</th>
     </tr>
   </thead>
   <tbody>
@@ -19,6 +21,17 @@
         <th scope="row">{{product.id}}</th>
         <td>{{product.name}}</td>
         <td>{{product.price}}</td>
+        <td>
+          {% for review in all_reviews if review.pid == product.id %}
+            <p>{{review.rating}}</p>
+          {% endfor %}
+          </td>
+        <td>
+        {% for review in all_reviews if review.pid == product.id %}
+          <p>{{review.review}}</p>
+        {% endfor %}
+        </td>
+        
       </tr>
     {% endfor %}
   </tbody>
