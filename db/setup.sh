@@ -18,6 +18,11 @@ if [[ -n `psql -lqt | cut -d \| -f 1 | grep -w "$dbname"` ]]; then
 fi
 createdb $dbname
 
-psql -af create.sql $dbname
+for createSqlFile in $mybase/sqlCreate/*; do
+    psql -af $createSqlFile $dbname
+done
+
 cd $datadir
-psql -af $mybase/load.sql $dbname
+for loadSqlFile in $mybase/sqlLoad/*; do
+    psql -af $loadSqlFile $dbname
+done
