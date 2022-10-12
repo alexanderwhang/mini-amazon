@@ -49,11 +49,17 @@
   <div class="sidenav">
     {% block msg %}
       <h1 style="color:aliceblue">Welcome to Bezos Juniors!</h1>
-      <div style="color: aliceblue; text-align: right; margin-bottom: 25px">
+      <div style="color: aliceblue; margin-bottom: 25px">
+        <div style="text-align: left;">
+          <a href="/" type="button" class="btn btn-light">Home</a>
+        </div>
         {% if current_user.is_authenticated %}
           Hello {{current_user.firstname}}! <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
         {% else %}
-          <a href="{{ url_for('users.login') }}" type="button" class="btn btn-light">Log in</a>
+        <div style="text-align: right;">
+          <a href="{{ url_for('users.login') }}" type="button" class="btn btn-light">Login</a>
+          <a href="{{ url_for('users.register') }}" type="button" class="btn btn-light">Register</a>
+        </div>
         {% endif %}
       </div>
     {% endblock %}
