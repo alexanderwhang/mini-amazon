@@ -2,11 +2,13 @@ from flask import current_app as app
 
 
 class Order:
-    def __init__(self, id, uid, pid, time_purchased, rating, review):
-        self.id = id
+    def __init__(self, order_id, uid, total_price, total_items, time_stamp):
+        self.order_id = order_id
         self.uid = uid
-        self.pid = pid
-        self.time_purchased = time_purchased
+        self.total_price = total_price
+        self.total_items = total_items
+        self.time_stamp = time_stamp
+
 
     @staticmethod
     def get(id):
@@ -16,7 +18,17 @@ FROM Orders
 WHERE order_id = :id
 ''',
                               id=id)
-        return Purchase(*(rows[0])) if rows else None
+        return Order(*(rows[0])) if rows else None
+        
+    @staticmethod
+    def get_all_orders_by_user(user_id):
+        rows = app.db.execute('''
+SELECT order_id, user_id, total_price, total_items, time_stamp
+FROM Orders
+WHERE user_id = :user_id
+''',
+                              user_id=user_id)
+        return Order(*(rows[0])) if rows else None
 
     @staticmethod
     def get_all_by_uid_since(uid, since):
@@ -29,4 +41,4 @@ ORDER BY time_stamp DESC
 ''',
                               uid=uid,
                               since=since)
-        return [Purchase(*row) for row in rows]
+        return [Order(*row) for row in rows]
