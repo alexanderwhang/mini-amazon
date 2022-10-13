@@ -3,6 +3,7 @@ import csv
 from faker import Faker
 
 num_users = 100
+num_categories = 20
 num_products = 2000
 num_purchases = 2500
 
@@ -32,6 +33,13 @@ def gen_users(num_users):
         print(f'{num_users} generated')
     return
 
+def gen_categories(num_categories):
+    with open('Categories.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('Categories...', end=' ', flush=True)
+        for i in range(num_categories):
+            cat = fake.sentence(nb_words=1)[:-1]
+            writer.writerow([name])
 
 def gen_products(num_products):
     available_pids = []
