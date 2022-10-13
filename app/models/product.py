@@ -20,7 +20,7 @@ class Product:
     @staticmethod
     def get(id):
         rows = app.db.execute('''
-SELECT *
+SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 FROM Products
 WHERE product_id = :id
 ''',
@@ -30,7 +30,7 @@ WHERE product_id = :id
     @staticmethod
     def get_all(available=True):
         rows = app.db.execute('''
-SELECT *
+SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 FROM Products
 WHERE available = :available
 ''',

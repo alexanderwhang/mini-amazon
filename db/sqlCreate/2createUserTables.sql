@@ -2,8 +2,6 @@
 drop table if exists Purchases;
 drop table if exists Sellers;
 
-
-
 CREATE TABLE if not exists Purchases (
     order_id INT NOT NULL REFERENCES Orders(order_id),
     pid INT NOT NULL REFERENCES Products(product_id),
