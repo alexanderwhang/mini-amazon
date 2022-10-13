@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Products (
     name VARCHAR(255) UNIQUE NOT NULL,
     description VARCHAR(4095) UNIQUE,
     price DECIMAL(12,2) NOT NULL,
-    imageurl VARCHAR(255) UNIQUE,
+    imageurl VARCHAR(255),
     quantity INT NOT NULL,
     available BOOLEAN DEFAULT TRUE,
     avg_rating DECIMAL(2,1)
