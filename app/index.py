@@ -18,7 +18,7 @@ def index():
     # find the products current user has bought:
     if current_user.is_authenticated:
         orders = Purchase.get_all_purchases_by_user(Purchase.user_email_to_id(current_user.email))
-        print(orders)
+        # print(current_user.email)
     else:
         orders = None
     # render the page by adding information to the index.html file
