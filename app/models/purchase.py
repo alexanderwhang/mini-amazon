@@ -37,6 +37,18 @@ where
         return [Purchase(*row) for row in rows]
 
     @staticmethod
+    def user_email_to_id(user_email):
+        rows = app.db.execute(
+            """
+            SELECT user_id
+            FROM Users
+            WHERE email = :user_email
+            """,
+            user_email=user_email
+        )
+        return rows[0][0]
+
+    @staticmethod
     def get_all_purchases_by_order(order_id):
         rows = app.db.execute('''
 select 
