@@ -1,5 +1,8 @@
 from flask import current_app as app
 
+class Category:
+    def __init__(self, cat):
+        self.cat = cat
 
 class Product:
     def __init__(self, product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating):
