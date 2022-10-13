@@ -12,12 +12,10 @@ bp = Blueprint('index', __name__)
 
 @bp.route('/')
 def index():
-    # Get purchases by product id
-    purchases0 = Purchase.get_all_purchases_by_order(0)
     # Get purchases by user id
     all_user_purchase = Purchase.get_all_purchases_by_user(0)
     # get all available products for sale:
-    products = Product.get_all(True)
+    products = Product.get_all()
     # find the products current user has bought:
     if current_user.is_authenticated:
         orders = Order.get_all_by_uid_since(
@@ -28,5 +26,5 @@ def index():
     return render_template('index.html',
                            avail_products=products,
                            purchase_history=orders,
-                           all_purchases = purchases0,
+                           all_products = products,
                            all_user_purchase = all_user_purchase)
