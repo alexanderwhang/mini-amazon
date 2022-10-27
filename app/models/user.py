@@ -12,7 +12,7 @@ class User(UserMixin):
         self.firstname = firstname
         self.lastname = lastname
         self.address = address
-        self.balance = balance
+        self.balance = "{:0.2f}".format(balance)
 
     @staticmethod
     def get_by_auth(email, password):
@@ -69,3 +69,37 @@ WHERE user_id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
+
+    @staticmethod
+    def updateUser(id, newEmail, newPassword, newAddress, newFirstName, newLastName, newBalance, passwordConfirmation):
+        rows = app.db.execute("""
+            SELECT password
+            FROM Users
+            where user_id = :id
+            """,
+            id=id)
+        if not check_password_hash(rows[0][0], passwordConfirmation):
+            # incorrect password
+            print("incorrect pw")
+            return None
+
+        query = []
+        if len(newEmail) > 0:
+            query.append(f"email = '{newEmail}'")
+        if len(newPassword) > 0:
+            query.append(f"password = '{generate_password_hash(newPassword)}' ")
+        if len(newAddress) > 0:
+            query.append(f"address = '{newAddress}'")
+        if len(newFirstName) > 0:
+            query.append(f"firstname = '{newFirstName}'")
+        if len(newLastName) > 0:
+            query.append(f"lastname = '{newLastName}'")
+        if len(newBalance) > 0:
+            assert int(newBalance) >= 0
+            query.append(f"balance = {int(newBalance)}")
+        query = ", ".join(query)
+        query = "UPDATE Users SET " + query + f" WHERE user_id = {id};"
+        print(query)
+        app.db.execute(query)   
+
+        return User.get(id)
