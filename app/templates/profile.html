@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Profile: {{user.firstname}} {{user.lastname}}</h2>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.newEmail.label }} Currently: {{user.email}}<br />
+        {{ form.newEmail(size=32) }}<br />
+        {% for error in form.newEmail.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.newPassword.label }}<br />
+        {{ form.newPassword(size=32) }}<br />
+        {% for error in form.newPassword.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.newAddress.label }} Currently: {{user.address}}<br />
+        {{ form.newAddress(size=32) }}<br />
+        {% for error in form.newAddress.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.newFirstName.label }} Currently: {{user.firstname}}<br />
+        {{ form.newFirstName(size=32) }}<br />
+        {% for error in form.newFirstName.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.newLastName.label }} Currently: {{user.lastname}}<br />
+        {{ form.newLastName(size=32) }}<br />
+        {% for error in form.newLastName.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.newBalance.label }} Currently: ${{user.balance}}<br />
+        {{ form.newBalance(size=32) }}<br />
+        {% for error in form.newBalance.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.passwordConfirmation.label }} {{ form.passwordConfirmation(size=32) }}<br />
+        {% for error in form.newBalance.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+      </p>
+    <p>{{ form.submit() }}</p>
+</form>
+
+{% endblock %}

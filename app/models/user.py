@@ -12,7 +12,7 @@ class User(UserMixin):
         self.firstname = firstname
         self.lastname = lastname
         self.address = address
-        self.balance = balance
+        self.balance = "{:0.2f}".format(balance)
 
     @staticmethod
     def get_by_auth(email, password):
@@ -69,3 +69,69 @@ WHERE user_id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
+
+    @staticmethod
+    def updateUser(id, newEmail, newPassword, newAddress, newFirstName, newLastName, newBalance, passwordConfirmation):
+        rows = app.db.execute("""
+            SELECT password, email, address, firstname, lastname, balance
+            FROM Users
+            where user_id = :id
+            """,
+            id=id)
+        oldpassword = rows[0][0]
+        oldemail = rows[0][1]
+        oldaddress = rows[0][2]
+        oldfirstname = rows[0][3]
+        oldlastname = rows[0][4]
+        oldbalance = rows[0][5] 
+
+        if not check_password_hash(oldpassword, passwordConfirmation):
+            # incorrect password
+            raise BadUpdateException("Incorrect Password")
+
+
+        query = []
+        if len(newEmail) > 0:
+            if newEmail == oldemail:
+                raise BadUpdateException("New email can't be old email")
+            if User.email_exists(newEmail):
+                raise BadUpdateException("Email already exists")
+            query.append(f"email = '{newEmail}'")
+        if len(newPassword) > 0:
+            if check_password_hash(oldpassword, newPassword):
+                raise BadUpdateException("New password can't be old password")
+            query.append(f"password = '{generate_password_hash(newPassword)}' ")
+        if len(newAddress) > 0:
+            if oldaddress == newAddress:
+                raise BadUpdateException("New address can't be old address")
+            query.append(f"address = '{newAddress}'")
+        if len(newFirstName) > 0:
+            if oldfirstname == newFirstName:
+                raise BadUpdateException("New first name can't be old first name")
+            query.append(f"firstname = '{newFirstName}'")
+        if len(newLastName) > 0:
+            if oldlastname == newLastName:
+                raise BadUpdateException("New last name can't be old last name")
+            query.append(f"lastname = '{newLastName}'")
+        if len(newBalance) > 0:
+            try:
+                newBalance = int(newBalance)
+            except Exception:
+                raise BadUpdateException("New balance must be a number")
+
+            if newBalance < 0:
+                raise BadUpdateException("New balance can't be negative")
+            query.append(f"balance = {newBalance}")
+        query = ", ".join(query)
+        query = "UPDATE Users SET " + query + f" WHERE user_id = {id};"
+
+        app.db.execute(query)   
+
+        return User.get(id)
+
+class BadUpdateException(Exception):
+    def __init__(self, msg):
+        super().__init__()
+        self.msg = msg
+    def toString(self):
+        return self.msg
