@@ -114,9 +114,14 @@ WHERE user_id = :id
                 raise BadUpdateException("New last name can't be old last name")
             query.append(f"lastname = '{newLastName}'")
         if len(newBalance) > 0:
-            if int(newBalance) < 0:
+            try:
+                newBalance = int(newBalance)
+            except Exception:
+                raise BadUpdateException("New balance must be a number")
+
+            if newBalance < 0:
                 raise BadUpdateException("New balance can't be negative")
-            query.append(f"balance = {int(newBalance)}")
+            query.append(f"balance = {newBalance}")
         query = ", ".join(query)
         query = "UPDATE Users SET " + query + f" WHERE user_id = {id};"
 
