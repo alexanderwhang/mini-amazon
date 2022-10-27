@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
-from .models.user import User
+from .models.user import User, BadUpdateException
 
 
 from flask import Blueprint
@@ -91,7 +91,8 @@ def profile():
     form = EditProfileForm()
 
     if form.validate_on_submit():
-        ret = User.updateUser(user.id, 
+        try:
+            ret = User.updateUser(user.id, 
                         form.newEmail.data.strip(), 
                         form.newPassword.data.strip(),
                         form.newAddress.data.strip(),
@@ -100,7 +101,11 @@ def profile():
                         form.newBalance.data.strip(),
                         form.passwordConfirmation.data,
                         )
-        if ret is not None:
-            flash('User Information Updated')
-            user = ret
+        
+            if ret is not None:
+                flash('User Information Updated')
+                user = ret
+            return redirect(url_for('users.profile'))
+        except BadUpdateException as e:
+            flash(e.toString())
     return render_template('profile.html', title='Profile', user=user, form=form)
