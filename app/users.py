@@ -85,8 +85,8 @@ class EditProfileForm(FlaskForm):
     passwordConfirmation = PasswordField('Enter Password to Confirm', validators=[DataRequired()])
     submit = SubmitField('Search')
 
-@bp.route('/profile', methods=['GET', 'POST'])
-def profile():
+@bp.route('/editprofile', methods=['GET', 'POST'])
+def editprofile():
     user = User.get(current_user.id)
     form = EditProfileForm()
 
@@ -105,7 +105,27 @@ def profile():
             if ret is not None:
                 flash('User Information Updated')
                 user = ret
-            return redirect(url_for('users.profile'))
+            return redirect(url_for('users.editprofile'))
         except BadUpdateException as e:
             flash(e.toString())
-    return render_template('profile.html', title='Profile', user=user, form=form)
+    return render_template('editprofile.html', title='Edit Profile', user=user, form=form)
+
+class FindUserForm(FlaskForm):
+    userId = StringField('Search a User ID', validators=[])
+    submit = SubmitField('Search')
+    
+@bp.route('/profile', methods=['GET', 'POST'])
+def profile():
+    form = FindUserForm()
+    user = None
+    if form.validate_on_submit():
+        if len(form.userId.data.strip()) > 0:
+            user = User.get(form.userId.data.strip())
+            print(user)
+            if user is None:
+                flash(f"User {form.userId.data.strip()} not found")
+
+    return render_template('profile.html', 
+                        title='Profile', 
+                        user=user, 
+                        form=form)

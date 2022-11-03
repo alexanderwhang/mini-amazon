@@ -52,11 +52,13 @@
       <div style="color: aliceblue; margin-bottom: 25px">
         <div style="text-align: left;">
           <a href="/" type="button" class="btn btn-light">Home</a>
+          <a href="{{ url_for('users.profile') }}" type="button" class="btn btn-light">Find a User</a>
+
         </div>
         {% if current_user.is_authenticated %}
           <div style="text-align: right;">
             Hello {{current_user.firstname}}! <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
-            <a href="{{ url_for('users.profile') }}" type="button" class="btn btn-light">Profile</a>
+            <a href="{{ url_for('users.editprofile') }}" type="button" class="btn btn-light">Profile</a>
           </div>
         {% else %}
         <div style="text-align: right;">
