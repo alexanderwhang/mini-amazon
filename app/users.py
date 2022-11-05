@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
-from .models.user import User
+from .models.user import User, BadUpdateException
 
 
 from flask import Blueprint
@@ -74,3 +74,38 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index.index'))
+
+class EditProfileForm(FlaskForm):
+    newEmail = StringField('New Email', validators=[])
+    newPassword = PasswordField('New Password', validators=[])
+    newAddress = StringField('New Address', validators=[])
+    newFirstName = StringField('New First Name', validators=[])
+    newLastName = StringField('New Last Name', validators=[])
+    newBalance = StringField('New Balance', validators=[])
+    passwordConfirmation = PasswordField('Enter Password to Confirm', validators=[DataRequired()])
+    submit = SubmitField('Search')
+
+@bp.route('/profile', methods=['GET', 'POST'])
+def profile():
+    user = User.get(current_user.id)
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        try:
+            ret = User.updateUser(user.id, 
+                        form.newEmail.data.strip(), 
+                        form.newPassword.data.strip(),
+                        form.newAddress.data.strip(),
+                        form.newFirstName.data.strip(),
+                        form.newLastName.data.strip(),
+                        form.newBalance.data.strip(),
+                        form.passwordConfirmation.data,
+                        )
+        
+            if ret is not None:
+                flash('User Information Updated')
+                user = ret
+            return redirect(url_for('users.profile'))
+        except BadUpdateException as e:
+            flash(e.toString())
+    return render_template('profile.html', title='Profile', user=user, form=form)
