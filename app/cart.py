@@ -1,11 +1,8 @@
 from flask import current_app as app
 from flask import render_template, redirect, url_for, flash, request
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-
+from flask_login import current_user
 from .models.user import User, BadUpdateException
 from flask import Blueprint
 bp = Blueprint('cart', __name__)
@@ -24,12 +21,13 @@ class Cart:
         self.quantity = quantity
         self.time_added_to_cart = time_added_to_cart
 
+# get and get_all_by_uid_since queries outdated
 
     @staticmethod
     def get(id):
         rows = app.db.execute('''
 SELECT id, uid, pid, quantity, time_added_to_cart
-FROM Carts
+FROM Cart
 WHERE id = :id
 ''',
                               id=id)
@@ -39,7 +37,7 @@ WHERE id = :id
     def get_all_by_uid_since(uid, since):
         rows = app.db.execute('''
 SELECT id, uid, pid, quantity, time_added_to_cart
-FROM Carts
+FROM Cart
 WHERE uid = :uid
 AND time_added_to_cart >= :since
 ORDER BY time_added_to_cart DESC
@@ -51,10 +49,10 @@ ORDER BY time_added_to_cart DESC
     @staticmethod
     def get_all_by_uid(uid):
         rows = app.db.execute('''
-SELECT Carts.id, uid, pid, name, price, quantity, time_added_to_cart
+SELECT Carts.id, uid, pid, name, price, Carts.quantity, time_added_to_cart
 FROM Carts, Products
 WHERE uid = :uid
-AND Carts.pid = Products.id
+AND Carts.pid = Products.product_id
 ORDER BY time_added_to_cart DESC
 ''',
                               uid=uid)
@@ -67,15 +65,17 @@ class CartPrice:
     @staticmethod
     def getPrice(uid):
         price = app.db.execute('''
-SELECT SUM(price * quantity)
+SELECT SUM(price * Carts.quantity)
 FROM Carts, Products
 WHERE uid = :uid
-AND Carts.pid = Products.id
+AND Carts.pid = Products.product_id
 ''',
                               uid=uid)
         return "$"+str(*price[0])
 
 @bp.route('/cart')
 def cart():
-    #user = User.get(current_user.id)
-    return render_template('cart.html', title='Cart')
+    user = User.get(current_user.id)
+    cart = Cart.get_all_by_uid(current_user.id)
+    totalPrice = CartPrice.getPrice(current_user.id)
+    return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice)
