@@ -57,6 +57,7 @@
           <div style="text-align: right;">
             Hello {{current_user.firstname}}! <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
             <a href="{{ url_for('users.profile') }}" type="button" class="btn btn-light">Profile</a>
+            <a href="{{ url_for('cart.cart') }}" type="button" class="btn btn-light">Cart</a>
           </div>
         {% else %}
         <div style="text-align: right;">
