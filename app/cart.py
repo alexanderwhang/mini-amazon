@@ -50,16 +50,22 @@ ORDER BY time_added_to_cart DESC
     def get_all_by_uid(uid):
         rows = app.db.execute('''
 with total_quantity as (
-    select distinct pid, sum(quantity) as quantity
+    select pid, sum(quantity) as quantity
+    from carts
+    group by pid
+),
+most_recent as (
+    select pid, max(time_added_to_cart) as time
     from carts
     group by pid
 )
-SELECT c.id, uid, tq.pid, name, price, tq.quantity, time_added_to_cart
+SELECT max(c.id), uid, tq.pid, name, price, tq.quantity, mr.time
 FROM total_quantity as tq
- join Carts c on c.pid = tq.pid
-  join Products p on p.product_id = tq.pid
+    join carts c on c.pid = tq.pid
+    join most_recent mr on mr.pid = tq.pid
+    join Products p on p.product_id = tq.pid
 WHERE uid = :uid
-ORDER BY time_added_to_cart DESC
+group by name, price, tq.quantity, tq.pid, uid, mr.time
 ''',
                               uid=uid)
         return [Cart(*row) for row in rows]
