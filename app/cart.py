@@ -49,10 +49,10 @@ ORDER BY time_added_to_cart DESC
     @staticmethod
     def get_all_by_uid(uid):
         rows = app.db.execute('''
-SELECT Cart.user_id, Cart.product_id, Products.name, Products.price, quantity, time_added_to_cart
-FROM Cart, Products
+SELECT Carts.id, uid, pid, name, price, Carts.quantity, time_added_to_cart
+FROM Carts, Products
 WHERE uid = :uid
-AND Cart.pid = Products.id
+AND Carts.pid = Products.product_id
 ORDER BY time_added_to_cart DESC
 ''',
                               uid=uid)
@@ -65,10 +65,10 @@ class CartPrice:
     @staticmethod
     def getPrice(uid):
         price = app.db.execute('''
-SELECT SUM(price * quantity)
-FROM Cart, Products
+SELECT SUM(price * Carts.quantity)
+FROM Carts, Products
 WHERE uid = :uid
-AND Carts.pid = Products.id
+AND Carts.pid = Products.product_id
 ''',
                               uid=uid)
         return "$"+str(*price[0])
@@ -77,4 +77,5 @@ AND Carts.pid = Products.id
 def cart():
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
-    return render_template('cart.html', title='Cart', user=user)
+    totalPrice = CartPrice.getPrice(current_user.id)
+    return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice)
