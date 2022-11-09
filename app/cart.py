@@ -21,8 +21,6 @@ class Cart:
         self.quantity = quantity
         self.time_added_to_cart = time_added_to_cart
 
-# get and get_all_by_uid_since queries outdated
-
     @staticmethod
     def get(id):
         rows = app.db.execute('''
@@ -69,6 +67,18 @@ group by name, price, tq.quantity, tq.pid, uid, mr.time
 ''',
                               uid=uid)
         return [Cart(*row) for row in rows]
+    
+    @staticmethod
+    def get_pid_from_uid_cart(uid, pid):
+        rows = app.db.execute('''
+SELECT id, uid, pid, quantity, time_added_to_cart
+FROM Carts
+WHERE uid = :uid
+AND pid = :pid
+''',
+                              uid=uid,
+                              pid=pid)
+        return [Cart(*row) for row in rows]
 
 class CartPrice:
     def __init__(self, price):
@@ -85,9 +95,21 @@ AND Carts.pid = Products.product_id
                               uid=uid)
         return "$"+str(*price[0])
 
-@bp.route('/cart')
+@bp.route('/cart', methods=['GET', 'POST'])
 def cart():
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
     totalPrice = CartPrice.getPrice(current_user.id)
-    return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice)
+    
+    def delete_entry(entry):
+        db.session.delete(entry)
+        db.session.commit()
+    
+    if request.method == "POST":
+        if action == 'delete':
+            target_row = Cart.get_pid_from_uid_cart(uid, pid)
+            delete_entry(target_row)
+            return redirect(url_for('cart.cart'))
+        
+    elif request.method == "GET":
+        return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice)
