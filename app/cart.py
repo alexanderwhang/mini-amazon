@@ -104,6 +104,7 @@ def cart(action=None, uid=None, pid=None):
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
     totalPrice = CartPrice.getPrice(current_user.id)
+    quantities = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
     
     if request.method == "POST":
         if action == 'delete':
@@ -115,4 +116,4 @@ def cart(action=None, uid=None, pid=None):
             return redirect(url_for('cart.cart'))
         
     elif request.method == "GET":
-        return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice)
+        return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, quantities=quantities)

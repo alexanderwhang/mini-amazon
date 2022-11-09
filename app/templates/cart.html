@@ -9,6 +9,7 @@
         <th scope="col">Product id</th>
         <th scope="col">Product Price</th>
         <th scope="col">Quantity</th>
+        <th scope="col">Update Quantity</th>
         <th scope="col">Time Added to Cart</th>
         <th scope="col">Remove Item From Cart?</th>
       </tr>
@@ -20,6 +21,15 @@
           <td scope="row">{{product.pid}}</td>
           <td>{{product.price}}</td>
           <td>{{product.quantity}}</td>
+          
+          <td>
+            <select name="quantities">
+              {% for quantity in quantities %}
+              <option value="{{ quantity }}" SELECTED>{{ quantity }}</option>
+              {% endfor %}
+            </select>
+          </td>
+
           <td>{{product.time_added_to_cart}}</td>
           <td>
             <form method="POST" action="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.pid)}}">
