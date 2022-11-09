@@ -94,7 +94,9 @@ WHERE uid = :uid
 AND Carts.pid = Products.product_id
 ''',
                               uid=uid)
-        return "$"+str(*price[0])
+        if str(*price[0]) == 'None':
+            return "Your cart is empty!"
+        return "Total cart price: $"+str(*price[0])
 
 @bp.route('/cart', methods=['GET', 'POST'])
 @bp.route('/cart/<action>/<uid>/<pid>', methods=['GET', 'POST'])
@@ -106,8 +108,7 @@ def cart(action=None, uid=None, pid=None):
     if request.method == "POST":
         if action == 'delete':
             app.db.execute('''DELETE FROM Carts
-            WHERE uid = :uid
-            AND pid = :pid''', uid=uid, pid=pid)
+            WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
             #cart = Cart.delete(uid, pid)
             #target_row = Cart.get_pid_from_uid_cart(uid, pid)
             #delete_entry(target_row)
