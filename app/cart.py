@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from flask_login import current_user
 from .models.user import User, BadUpdateException
 from flask import Blueprint
+from flask_sqlalchemy import SQLAlchemy
 bp = Blueprint('cart', __name__)
 
 class Cart:
@@ -96,19 +97,20 @@ AND Carts.pid = Products.product_id
         return "$"+str(*price[0])
 
 @bp.route('/cart', methods=['GET', 'POST'])
-def cart():
+@bp.route('/cart/<action>/<uid>/<pid>', methods=['GET', 'POST'])
+def cart(action=None, uid=None, pid=None):
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
     totalPrice = CartPrice.getPrice(current_user.id)
     
-    def delete_entry(entry):
-        db.session.delete(entry)
-        db.session.commit()
-    
     if request.method == "POST":
         if action == 'delete':
-            target_row = Cart.get_pid_from_uid_cart(uid, pid)
-            delete_entry(target_row)
+            app.db.execute('''DELETE FROM Carts
+            WHERE uid = :uid
+            AND pid = :pid''', uid=uid, pid=pid)
+            #cart = Cart.delete(uid, pid)
+            #target_row = Cart.get_pid_from_uid_cart(uid, pid)
+            #delete_entry(target_row)
             return redirect(url_for('cart.cart'))
         
     elif request.method == "GET":

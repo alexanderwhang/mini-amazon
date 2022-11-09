@@ -19,7 +19,11 @@
           <td>{{product.price}}</td>
           <td>{{product.quantity}}</td>
           <td>{{product.time_added_to_cart}}</td>
-          <td><a href="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.id)}}" method="POST">Delete</a></td>
+          <td>
+            <form method="POST" action="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.id)}}">
+              <input class="btn" type="submit" name="delete" value="Delete">
+            </form>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
