@@ -10,5 +10,44 @@
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
+	</p>
 	<p>{{ form.submitSKU() }}</p>
 </form>
+{% if products[0] is defined %}
+<p style="text-align:left;">
+    <h1>{{products[0].name}}</h1>
+    <span style="float:right;">
+        <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Add to Cart</a>
+    </span>
+</p>
+<p style="text-align:left;">
+    <h3>{{products[0].description}}</h3>
+    <span style="float:right;">
+        Price: {{products[0].price}}
+    </span>
+</p>
+<br><br>
+<p style="text-align:right;">
+    Buy Soon! Only {{products[0].quantity}} left!
+</p>
+<br><br>
+<br><br>
+<p style="text-align:left;">
+    <h2>Reviews:</h2>
+</p>
+<br><br>
+<p style="text-align:left;">
+    <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Add a Review</a>
+</p>
+{% endif %}
+{% endblock %}

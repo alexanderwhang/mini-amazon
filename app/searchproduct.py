@@ -1,7 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request
-from numpy import product
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
@@ -24,9 +22,14 @@ class FindProductByName(FlaskForm):
 def searchbySKU():
     SKUForm = FindProductBySKU()
     product = None
-    if product is None:
-                flash("Product not found")
+    if SKUForm.validate_on_submit():
+        if len(SKUForm.productSKU.data.strip()) > 0:
+            product = Product.get_SKU(SKUForm.productSKU.data.strip())
+            print(product)
+            if product is None:
+                flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
+
     return render_template('searchproduct.html', 
                         title='SearchSKU', 
-                        product=product,
+                        products=product,
                         form=SKUForm)

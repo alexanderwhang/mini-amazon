@@ -36,7 +36,17 @@ WHERE available = :available
 ''',
                               available=available)
         return [Product(*row) for row in rows]
-        
+    
+    @staticmethod
+    def get_SKU(sku):
+        rows = app.db.execute('''
+SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+FROM Products
+WHERE product_id = :sku
+''',
+                              sku=sku)
+        return [Product(*row) for row in rows] if rows else None
+
 class BadUpdateException(BaseException):
     def __init__(self, msg):
         super().__init__()
