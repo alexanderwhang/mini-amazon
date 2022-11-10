@@ -14,6 +14,7 @@ CREATE TABLE if not exists Users (
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
     address VARCHAR NOT NULL,
+    seller BOOLEAN DEFAULT FALSE,
     balance REAL DEFAULT 0 CHECK(balance >= 0) NOT NULL
 );
 
