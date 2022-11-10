@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
 <h2>Profile: {{user.firstname}} {{user.lastname}}</h2>
 
 <form action="" method="post">
@@ -66,5 +67,5 @@
       </p>
     <p>{{ form.submit() }}</p>
 </form>
-
+{% endif %}
 {% endblock %}

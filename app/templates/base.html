@@ -52,6 +52,9 @@
       <div style="color: aliceblue; margin-bottom: 25px">
         <div style="text-align: left;">
           <a href="/" type="button" class="btn btn-light">Home</a>
+          <a href="{{ url_for('users.user') }}" type="button" class="btn btn-light">Find a User</a>
+          <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Search for a Product</a>
+
         </div>
         {% if current_user.is_authenticated %}
           <div style="text-align: right;">
