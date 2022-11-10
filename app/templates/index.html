@@ -59,6 +59,8 @@
 		<th scope="col">Product ID</th>
 		<th scope="col">Review Time</th>
 		<th scope="col">Review Content</th>
+		<th scope="col">Review Rating</th>
+		<th scope="col">Edit Review</th>
 	</tr>
   </thead>
   <tbody>
@@ -67,6 +69,8 @@
 		<th>{{review.pid}}</th>
 		<th>{{review.review_time}}</th>
 		<th>{{review.review_content}}</th>
+		<th>{{review.review_rating}}</th>
+		<th><a href="{{ url_for('review.editreview', review_id = review.id) }}" type="button" class="btn btn-light">Edit</a></th>
 	</tr>
     {% endfor %}
   </tbody>
