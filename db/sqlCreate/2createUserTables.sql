@@ -1,6 +1,5 @@
 --User Tables (Albert)
 drop table if exists Purchases;
-drop table if exists Sellers;
 
 CREATE TABLE if not exists Purchases (
     order_id INT NOT NULL REFERENCES Orders(order_id),
@@ -9,6 +8,3 @@ CREATE TABLE if not exists Purchases (
     fulfillment_status VARCHAR not null check(fulfillment_status in ('ordered', 'shipped', 'delivered')) 
 );
 
-CREATE TABLE if not exists Sellers (
-    user_id INT NOT NULL REFERENCES Users(user_id)
-);
