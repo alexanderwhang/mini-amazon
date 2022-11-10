@@ -6,6 +6,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from .models.user import User, BadUpdateException
+from .models.product import Product, BadUpdateException
 
 
 from flask import Blueprint
@@ -26,3 +27,33 @@ def seller():
     return render_template('inventory.html',
                            purchase_history=orders,
                            all_products = inventory)
+
+
+class AddInventoryForm(FlaskForm):
+    name = StringField('Item Name', validators=[DataRequired()])
+    category = StringField('Category', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
+    imageurl = StringField('Image url', validators=[DataRequired()])
+    quantity = StringField('Quantity', validators=[DataRequired()])
+    submit = SubmitField('Register Item')
+
+@bp.route('/addinventory', methods=['GET', 'POST'])
+def addinventory():
+    form = AddInventoryForm()
+    if form.validate_on_submit():
+        try:
+            ret = Product.add_product(current_user.id,
+                        form.name.data.strip(), 
+                        form.category.data.strip(),
+                        form.description.data.strip(),
+                        form.price.data.strip(),
+                        form.imageurl.data.strip(),
+                        form.quantity.data.strip()
+                        )
+            if ret is not None:
+                flash('User Information Updated')
+            return redirect(url_for('inventory.seller'))
+        except BadUpdateException as e:
+            flash(e.toString())
+    return render_template('addinventory.html', form=form)
