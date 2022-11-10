@@ -35,23 +35,12 @@ def gen_users():
         print(f'{num_users} users generated')
     return
 
-def gen_sellers():
-    sellers = []
-    with open('Sellers.csv', 'w') as f:
-        writer = get_csv_writer(f)
-        print('Sellers...', end=' ', flush=True)
-        for uid in range(num_users):
-            if fake.random_element(elements=(True, False)):
-                sellers.append(uid)
-                writer.writerow([uid])
-        print('generated sellers')
-    return sellers
 
 def gen_products():
     available_pids = {}
     categoriesFile = open('Categories.csv', 'w')
     categories_writer = get_csv_writer(categoriesFile)
-
+    sellers = set()
     with open('Products.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Products...', end=' ', flush=True)
@@ -59,6 +48,7 @@ def gen_products():
             if pid % 100 == 0:
                 print(f'{pid}', end=' ', flush=True)
             user_id = fake.random_int(min=0, max=num_users-1)
+            sellers.add(user_id)
             name = fake.sentence(nb_words=4)[:-1]
             nameParts = name.split()
             category = fake.random_element(elements=nameParts)
@@ -78,7 +68,17 @@ def gen_products():
             writer.writerow([pid, user_id, category, name, description, price, imageurl, quantity, available, rating])
         print(f'{num_products} products generated')
         categoriesFile.close()
-    return available_pids
+    return available_pids, sellers
+
+def gen_sellers(sellers):
+    sellers = []
+    with open('Sellers.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('Sellers...', end=' ', flush=True)
+        for uid in sellers:
+            writer.writerow([uid])
+        print('generated sellers')
+    return sellers
 
 def gen_purchases(available_pids):
     purchases = {}
@@ -93,7 +93,7 @@ def gen_purchases(available_pids):
                 fStatus = fake.random_element(elements=('ordered', 'shipped', 'delivered'))
                 purchases[id].append((pid,quantity))
                 writer.writerow([id, pid, quantity, fStatus])
-        print(f'{num_purchases} generated')
+        print(f'purchases generated')
     return purchases
 
 def gen_orders(purchases, products):
@@ -124,7 +124,7 @@ def gen_reviews(orders):
     with open('ProductReviews.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('product reviews...', end=' ', flush=True)
-        for uid, pids in orders.items()
+        for uid, pids in orders.items():
             for pid in pids:
                 rating = fake.random_int(min=1, max=5)
                 review = fake.sentence(nb_words=4)[:-1]
@@ -136,7 +136,7 @@ def gen_carts(orders):
     with open('Carts.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('carts...', end=' ', flush=True)
-        for uid, pids in orders.items()
+        for uid, pids in orders.items():
             id = 0
             for pid in pids:
                 quantity = fake.random_int(min=1, max=10)
@@ -149,9 +149,10 @@ def gen_carts(orders):
 
 if __name__ == "__main__":
     gen_users()
-    gen_sellers()
 
-    available_pids = gen_products()
+    available_pids,sellers = gen_products()
+    gen_sellers(sellers)
+
     purchases = gen_purchases(available_pids)
     orders = gen_orders(purchases,available_pids)
     gen_reviews(orders)
