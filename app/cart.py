@@ -48,23 +48,11 @@ ORDER BY time_added_to_cart DESC
     @staticmethod
     def get_all_by_uid(uid):
         rows = app.db.execute('''
-with total_quantity as (
-    select pid, sum(quantity) as quantity
-    from carts
-    group by pid
-),
-most_recent as (
-    select pid, max(time_added_to_cart) as time
-    from carts
-    group by pid
-)
-SELECT max(c.id), uid, tq.pid, name, price, tq.quantity, mr.time
-FROM total_quantity as tq
-    join carts c on c.pid = tq.pid
-    join most_recent mr on mr.pid = tq.pid
-    join Products p on p.product_id = tq.pid
+SELECT Carts.id, uid, pid, name, price, Carts.quantity, time_added_to_cart
+FROM Carts, Products
 WHERE uid = :uid
-group by name, price, tq.quantity, tq.pid, uid, mr.time
+AND Carts.pid = Products.product_id
+ORDER BY time_added_to_cart DESC
 ''',
                               uid=uid)
         return [Cart(*row) for row in rows]
@@ -100,7 +88,7 @@ AND Carts.pid = Products.product_id
 
 @bp.route('/cart', methods=['GET', 'POST'])
 @bp.route('/cart/<action>/<uid>/<pid>', methods=['GET', 'POST'])
-def cart(action=None, uid=None, pid=None):
+def cart(action=None, uid=None, pid=None, quantity=1):
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
     totalPrice = CartPrice.getPrice(current_user.id)
@@ -113,6 +101,12 @@ def cart(action=None, uid=None, pid=None):
             #cart = Cart.delete(uid, pid)
             #target_row = Cart.get_pid_from_uid_cart(uid, pid)
             #delete_entry(target_row)
+            return redirect(url_for('cart.cart'))
+        
+        if action == 'update':
+            app.db.execute('''UPDATE Carts
+            SET quantity = :quantity
+            WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid, quantity=request.form['quant'])
             return redirect(url_for('cart.cart'))
         
     elif request.method == "GET":
