@@ -129,7 +129,7 @@ WHERE user_id = :id
 
         return User.get(id)
 
-class BadUpdateException(Exception):
+class BadUpdateException(BaseException):
     def __init__(self, msg):
         super().__init__()
         self.msg = msg

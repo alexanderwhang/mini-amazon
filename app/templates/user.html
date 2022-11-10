@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.userId.label }}<br />
+        {{ form.userId(size=32) }}<br />
+        {% for error in form.userId.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
+	</p>
+	<p>{{ form.submit() }}</p>
+</form>
+
+{% if user is defined %}
+<h2>User ID: {{user.id}}</h2>
+<h2>User: {{user.firstname}} {{user.lastname}}</h2>
+{% endif %}
+{% endblock %}
