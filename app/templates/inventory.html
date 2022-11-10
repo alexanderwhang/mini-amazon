@@ -2,7 +2,6 @@
 
 {% block content %}
 
-<!-- {% if current_user.is_authenticated %} -->
 <br><br>
 <h2>Products for sale:</h2>
 <table class='table table-hover table-bordered container'>
@@ -16,7 +15,7 @@
   <tbody>
     {% for product in all_products%}
     <tr>
-		<th>{{products.name}}</th>
+		<th>{{product.name}}</th>
 		<th>{{product.price}}</th>
 		<th>{{product.quantity}}</th>
 	</tr>
@@ -44,7 +43,7 @@
     {% for purchase in purchase_history %}
     <tr>
 		<th>{{purchase.order_id}}</th>
-		<th>{{purchase.product_name}}</th>
+		<th>{{purchase.name}}</th>
 		<th>{{purchase.user_id}}</th>
 		<th>{{purchase.address}}</th>
 		<th>{{purchase.time_stamp}}</th>

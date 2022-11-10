@@ -18,7 +18,7 @@ FROM Users, Products
 WHERE Users.user_id = :user_id AND Users.user_id = Products.user_id
 ''',
                               user_id=user_id)
-        return [Purchase(*row) for row in rows]
+        return [Inventory(*row) for row in rows]
 
     @staticmethod
     def get_all_inventories_by_product(product_id):
@@ -28,16 +28,16 @@ FROM Users, Products
 WHERE Products.product_id = :product_id AND Users.user_id = Products.user_id
 ''',
                               product_id=product_id)
-        return [Purchase(*row) for row in rows]
+        return [Inventory(*row) for row in rows]
     
-     @staticmethod
+    @staticmethod
     def add_product(product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating):
         rows = app.db.execute('''
 INSERT INTO Products
 VALUES (:product_id, :user_id, :category, :name, :description, :price, :imageurl, :quantity, :available, :avg_rating)
 ''',
                               user_id =user_id, product_id = product_id)
-        return [Purchase(*row) for row in rows]
+        return [Inventory(*row) for row in rows]
     
     @staticmethod
     def remove_product(user_id, product_id):
@@ -46,7 +46,7 @@ DELETE FROM Products
 WHERE user_id = :user_id AND product_id = :product_id
 ''',
                               user_id =user_id, product_id = product_id)
-        return [Purchase(*row) for row in rows]
+        return [Inventory(*row) for row in rows]
     
     @staticmethod
     def update_product(user_id, product_id, quantity):
@@ -56,11 +56,11 @@ SET quantity = :quantity
 WHERE user_id = :user_id AND product_id = :product_id
 ''',
                               user_id =user_id, product_id = product_id, quantity= quantity)
-        return [Purchase(*row) for row in rows]
+        return [Inventory(*row) for row in rows]
 
 
 class Fulfillment:
-    def __init__(self, user_id, seller_id, order_id, address, fulfillment_status, time_stamp):
+    def __init__(self, user_id, order_id, address,name, fulfillment_status, time_stamp, total_items):
         self.user_id = user_id #from orders, this is the BUYER
         self.order_id = order_id #from orders and purchases
         self.address = address #from users
@@ -72,18 +72,18 @@ class Fulfillment:
     @staticmethod
     def get_all_fulfillment_by_user(user_id):
         rows = app.db.execute('''
-SELECT Users.user_id, Products.name, Orders.order_id, Orders.time_stamp, Orders.total_items, Users.address, Purchases.fulfillment_status
+SELECT Orders.user_id, Orders.order_id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items
 FROM Orders, Products, Purchases, Users
 WHERE (
     Orders.order_id = Purchases.order_id AND
-    Orders.user_id = Users.user_id AND
+    Products.user_id = Users.user_id AND
     Products.product_id = Purchases.pid AND
     Users.user_id = :user_id
 )
 ORDER BY Orders.time_stamp DESC
 ''',
-                              user_id=user_id, seller_id = seller_id)
-        return [Purchase(*row) for row in rows]
+                              user_id=user_id)
+        return [Fulfillment(*row) for row in rows]
 
     @staticmethod
     def get_all_fulfillment_by_order(order_id):
@@ -98,8 +98,8 @@ WHERE (
 )
 ORDER BY Orders.time_stamp DESC
 ''',
-                              order_id=order_id, seller_id = seller_id)
-        return [Purchase(*row) for row in rows]
+                              order_id=order_id)
+        return [Fulfillment(*row) for row in rows]
 
     @staticmethod
     def mark_fulfilled(order_id, product_id, fulfillment_status):
@@ -108,5 +108,5 @@ UPDATE Purchases
 SET fulfillment_status = :fulfillment_status
 WHERE order_id = :order_id AND product_id = :product_id
 ''',
-                              order_id = order_id, seller_id = seller_id, fulfillment_status = fulfillment_status)
-        return [Purchase(*row) for row in rows]
+                              order_id = order_id, fulfillment_status = fulfillment_status)
+        return [Fulfillment(*row) for row in rows]

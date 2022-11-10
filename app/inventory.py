@@ -6,6 +6,8 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from .models.user import User, BadUpdateException
+from .models.seller import Inventory, Fulfillment
+
 
 
 from flask import Blueprint
@@ -24,5 +26,5 @@ def seller():
 
     # render the page by adding information to the index.html file
     return render_template('inventory.html',
-                           purchase_history=orders,
+                           purchase_history=fulfillment,
                            all_products = inventory)
