@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.productSKU.label }}<br />
+        {{ form.productSKU(size=32) }}<br />
+        {% for error in form.productSKU.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
+	</p>
+	<p>{{ form.submitSKU() }}</p>
+</form>
+{% if products[0] is defined %}
+<p style="text-align:left;">
+    <h1>{{products[0].name}}</h1>
+    <span style="float:right;">
+        <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Add to Cart</a>
+    </span>
+</p>
+<p style="text-align:left;">
+    <h3>{{products[0].description}}</h3>
+    <span style="float:right;">
+        Price: {{products[0].price}}
+    </span>
+</p>
+<br><br>
+{% if products[0].quantity > 0 %}
+<p style="text-align:right;">
+    Buy Soon! Only {{products[0].quantity}} left!
+</p>
+{% else %}
+<p style="text-align:right;">
+    Currently out of stock. Check back later!
+</p>
+{% endif %}
+<br><br>
+<br><br>
+<p style="text-align:left;">
+    <h2>Reviews:</h2>
+</p>
+<p style="text-align:left;">
+    <h4>Average Rating: {{products[0].avg_rating}}</h4>
+</p>
+<p style="text-align:left;">
+    <a href="{{ url_for('review.showproductreviews', product_id = products[0].product_id) }}" type="button" class="btn btn-light">View Reviews</a>
+</p>
+{% endif %}
+{% endblock %}

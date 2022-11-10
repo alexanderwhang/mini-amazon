@@ -114,14 +114,19 @@ def gen_orders(purchases, products):
     return orders
 
 def gen_reviews(orders):
-    with open('ProductReviews.csv', 'w') as f:
+    with open('Review.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('product reviews...', end=' ', flush=True)
-        for uid, pids in orders.items():
-            for pid in pids:
+        rev_id = 0
+        for users in range(3):
+            for product in range(19):
+                uid = users
+                pid = product+1
                 rating = fake.random_int(min=1, max=5)
                 review = fake.sentence(nb_words=4)[:-1]
-                writer.writerow([uid, pid, rating, review])
+                timestamp = fake.date_time()
+                writer.writerow([rev_id, uid, pid, timestamp, review, rating])
+                rev_id+=1
         print('generated reviews')
     return 
 

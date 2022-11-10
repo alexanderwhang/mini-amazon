@@ -50,6 +50,32 @@
     {% endfor %}
   </tbody>
 </table>
+
+<!-- Aaric's Product Reviews List -->
+<h2>Product Reviews:</h2>
+<table class='table table-hover table-bordered container'>
+  <thead class="thead-dark">
+	<tr>
+		<th scope="col">Product ID</th>
+		<th scope="col">Review Time</th>
+		<th scope="col">Review Content</th>
+		<th scope="col">Review Rating</th>
+		<th scope="col">Edit Review</th>
+	</tr>
+  </thead>
+  <tbody>
+    {% for review in all_user_reviews %}
+    <tr>
+		<th>{{review.pid}}</th>
+		<th>{{review.review_time}}</th>
+		<th>{{review.review_content}}</th>
+		<th>{{review.review_rating}}</th>
+		<th><a href="{{ url_for('review.editreview', review_id = review.id) }}" type="button" class="btn btn-light">Edit</a></th>
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% else %}
 <p><a href="{{ url_for('users.login') }}">Log in</a> to see your purchase history!</p>
 {% endif %}
