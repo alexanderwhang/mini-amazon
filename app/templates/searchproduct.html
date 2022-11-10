@@ -55,7 +55,7 @@
     <h4>Average Rating: {{products[0].avg_rating}}</h4>
 </p>
 <p style="text-align:left;">
-    <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Add a Review</a>
+    <a href="{{ url_for('review.showproductreviews', product_id = products[0].product_id) }}" type="button" class="btn btn-light">View Reviews</a>
 </p>
 {% endif %}
 {% endblock %}
