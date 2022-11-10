@@ -37,9 +37,15 @@
     </span>
 </p>
 <br><br>
+{% if products[0].quantity > 0 %}
 <p style="text-align:right;">
     Buy Soon! Only {{products[0].quantity}} left!
 </p>
+{% else %}
+<p style="text-align:right;">
+    Currently out of stock. Check back later!
+</p>
+{% endif %}
 <br><br>
 <br><br>
 <p style="text-align:left;">
