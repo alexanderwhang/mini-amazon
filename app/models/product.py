@@ -36,3 +36,10 @@ WHERE available = :available
 ''',
                               available=available)
         return [Product(*row) for row in rows]
+        
+class BadUpdateException(BaseException):
+    def __init__(self, msg):
+        super().__init__()
+        self.msg = msg
+    def toString(self):
+        return self.msg
