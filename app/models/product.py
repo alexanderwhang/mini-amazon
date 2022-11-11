@@ -47,6 +47,37 @@ WHERE product_id = :sku
                               sku=sku)
         return [Product(*row) for row in rows] if rows else None
 
+    @staticmethod
+    def add_product(user_id, name, category, description, price, imageurl, quantity):
+        try:
+            quantity = int(quantity)
+        except Exception as e:
+            raise BadUpdateException("Quantity must be a number")
+
+        if quantity <= 0:
+            raise BadUpdateException("Quantity must be greater than 0")
+
+        try:
+            price = float(price)
+        except Exception as e:
+            raise BadUpdateException("Price must be a Float")
+
+        try:
+            rows = app.db.execute("""
+INSERT INTO Products(user_id, category, name, description, price, imageurl, quantity, available, avg_rating)
+VALUES(:uid, :category, :name, :description, :price, :imgurl, :quantity, True, 0)
+RETURNING product_id
+""",
+                                uid=user_id, category=category, name=name, description=description, price=price,
+                                imgurl=imageurl, quantity=quantity)
+            id = rows[0][0]
+            return Product.get(id)
+        except Exception as e:
+            # likely email already in use; better error checking and reporting needed;
+            # the following simply prints the error to the console:
+            print(str(e))
+            return None
+
 class BadUpdateException(BaseException):
     def __init__(self, msg):
         super().__init__()

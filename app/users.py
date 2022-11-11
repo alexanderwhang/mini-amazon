@@ -94,7 +94,7 @@ def profile():
         try:
             ret = User.updateUser(user.id, 
                         form.newEmail.data.strip(), 
-                        form.newPassword.data.strip(),
+                        form.newPassword.data,
                         form.newAddress.data.strip(),
                         form.newFirstName.data.strip(),
                         form.newLastName.data.strip(),
