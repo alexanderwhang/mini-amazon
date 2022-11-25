@@ -98,9 +98,6 @@ def cart(action=None, uid=None, pid=None, quantity=1):
         if action == 'delete':
             app.db.execute('''DELETE FROM Carts
             WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
-            #cart = Cart.delete(uid, pid)
-            #target_row = Cart.get_pid_from_uid_cart(uid, pid)
-            #delete_entry(target_row)
             return redirect(url_for('cart.cart'))
         
         if action == 'update':

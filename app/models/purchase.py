@@ -1,4 +1,7 @@
 from flask import current_app as app
+from flask import Blueprint
+from flask import render_template, redirect, url_for, flash, request
+bp = Blueprint('purchase', __name__)
 
 
 class Purchase:
@@ -67,3 +70,26 @@ where
 ''',
                               order_id=order_id)
         return [Purchase(*row) for row in rows]
+
+class OrderPrice:
+    def __init__(self, price):
+        self.price = price
+
+    @staticmethod
+    def getPrice(oid):
+        price = app.db.execute('''
+SELECT SUM(Products.price * Purchases.quantity)
+FROM Products, Purchases
+WHERE Purchases.order_id = :oid
+AND Purchases.pid = Products.product_id
+''',
+                              oid=oid)
+        if str(*price[0]) == 'None':
+            return "This order contains no items!"
+        return "Total price: $"+str(*price[0])
+
+@bp.route('/purchase/<oid>', methods=['GET', 'POST'])
+def purchase(oid=None):
+    purchases = Purchase.get_all_purchases_by_order(oid)
+    totalPrice = OrderPrice.getPrice(oid)
+    return render_template('purchase.html', title='Purchase', purchases=purchases, totalPrice=totalPrice)
