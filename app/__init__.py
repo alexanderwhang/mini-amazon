@@ -27,6 +27,9 @@ def create_app():
     from .orders import bp as orders_bp
     app.register_blueprint(orders_bp)
 
+    from .models.purchase import bp as purchase_bp
+    app.register_blueprint(purchase_bp)
+
     from .searchproduct import bp as searchproduct_bp
     app.register_blueprint(searchproduct_bp)
 

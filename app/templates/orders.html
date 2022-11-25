@@ -10,6 +10,7 @@
         <th scope="col">Total Price</th>
         <th scope="col">Total Items</th>
         <th scope="col">Time Ordered</th>
+        <th scope="col">Details</th>
       </tr>
     </thead>
     <tbody>
@@ -20,6 +21,11 @@
           <td>{{order.tot_price}}</td>
           <td>{{order.tot_items}}</td>
           <td>{{order.time}}</td>
+          <td>
+            <form action="{{url_for('purchase.purchase', oid=order.oid)}}">
+              <input class="btn" type="submit" name="details" value="Details">
+            </form>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
