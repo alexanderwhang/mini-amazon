@@ -84,10 +84,11 @@ AND Carts.pid = Products.product_id
                               uid=uid)
         if str(*price[0]) == 'None':
             return "Your cart is empty!"
-        return "Total cart price: $"+str(*price[0])
+        return str(*price[0])
 
 @bp.route('/cart', methods=['GET', 'POST'])
 @bp.route('/cart/<action>/<uid>/<pid>', methods=['GET', 'POST'])
+@bp.route('/cart/<action>/<uid>', methods=['GET', 'POST'])
 def cart(action=None, uid=None, pid=None, quantity=1):
     user = User.get(current_user.id)
     cart = Cart.get_all_by_uid(current_user.id)
@@ -105,6 +106,23 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             SET quantity = :quantity
             WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid, quantity=request.form['quant'])
             return redirect(url_for('cart.cart'))
+        
+        if action == 'confirm':
+            rows = app.db.execute('''
+            SELECT
+                U.balance as bal,
+                C.quantity as needed,
+                P.quantity as have,
+                P.available as avail
+            FROM Products P, Carts C, Users U
+            WHERE C.pid = P.product_id
+            AND C.uid = 2
+            AND U.user_id = 2
+            AND U.balance >= :totalPrice
+            ''', uid=uid, totalPrice=totalPrice)
+            
+            if len(rows) == 0:
+                return "hi"
         
     elif request.method == "GET":
         return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, quantities=quantities)

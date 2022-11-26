@@ -48,6 +48,9 @@
       {% endfor %}
     </tbody>
   </table>
-<h4>{{totalPrice}}</h4>
-<input class="btn" type="submit" name="order" value="Proceed to Checkout">
+<h4>Total cart price: ${{totalPrice}}</h4>
+
+<form method="POST" action="{{url_for('cart.cart', action='confirm', uid=user.id)}}">
+  <input class="btn" type="submit" name="order" value="Confirm Order">
+</form>
 {% endblock %}
