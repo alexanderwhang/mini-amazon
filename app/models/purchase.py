@@ -90,6 +90,12 @@ AND Purchases.pid = Products.product_id
 
 @bp.route('/purchase/<oid>', methods=['GET', 'POST'])
 def purchase(oid=None):
+    status = 'Fulfilled'
     purchases = Purchase.get_all_purchases_by_order(oid)
+    for purch in purchases:
+        if purch.fulfillment_status == 'shipped' or purch.fulfillment_status == 'ordered':
+            status = 'Pending'
+            break
+
     totalPrice = OrderPrice.getPrice(oid)
-    return render_template('purchase.html', title='Purchase', purchases=purchases, totalPrice=totalPrice)
+    return render_template('purchase.html', title='Purchase', purchases=purchases, totalPrice=totalPrice, status=status)

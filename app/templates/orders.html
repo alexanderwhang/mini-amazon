@@ -10,6 +10,7 @@
         <th scope="col">Total Price</th>
         <th scope="col">Total Items</th>
         <th scope="col">Time Ordered</th>
+        <th scope="col">Status</th>
         <th scope="col">Details</th>
       </tr>
     </thead>
@@ -21,6 +22,7 @@
           <td>{{order.tot_price}}</td>
           <td>{{order.tot_items}}</td>
           <td>{{order.time}}</td>
+          <td>{{fulfillmentDict[order.oid]}}</td>
           <td>
             <form action="{{url_for('purchase.purchase', oid=order.oid)}}">
               <input class="btn" type="submit" name="details" value="Details">
