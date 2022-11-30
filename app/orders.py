@@ -4,6 +4,7 @@ from werkzeug.urls import url_parse
 from flask_wtf import FlaskForm
 from flask_login import current_user
 from .models.user import User, BadUpdateException
+from .models.purchase import Purchase
 from flask import Blueprint
 from flask_sqlalchemy import SQLAlchemy
 bp = Blueprint('orders', __name__)
@@ -38,6 +39,16 @@ WHERE user_id = :user_id
 
 @bp.route('/orders', methods=['GET', 'POST'])
 def orders():
+    fulfillmentDict = {}
     user = User.get(current_user.id)
     orders = Orders.get_all_orders_by_user(current_user.id)
-    return render_template('orders.html', title='Orders', user=user, orders=orders)
+
+    for o in orders:
+        purchases = Purchase.get_all_purchases_by_order(o.oid)
+        for purch in purchases:
+            if purch.fulfillment_status == 'shipped' or purch.fulfillment_status == 'ordered':
+                fulfillmentDict[o.oid] = 'Pending'
+                break
+            fulfillmentDict[o.oid] = 'Fulfilled'
+
+    return render_template('orders.html', title='Orders', user=user, orders=orders, fulfillmentDict=fulfillmentDict)
