@@ -9,10 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 bp = Blueprint('cart', __name__)
 
 class Cart:
-    """
-    This is just a TEMPLATE for Cart, you should change this by adding or 
-        replacing new columns, etc. for your design.
-    """
     def __init__(self, id, uid, pid, name, price, quantity, time_added_to_cart):
         self.id = id
         self.uid = uid
@@ -108,12 +104,15 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             return redirect(url_for('cart.cart'))
         
         if action == 'confirm':
+            unavailable = []
             rows = app.db.execute('''
             SELECT
                 U.balance as bal,
                 C.quantity as needed,
                 P.quantity as have,
-                P.available as avail
+                P.available as avail,
+                C.pid as pid,
+                P.price as price
             FROM Products P, Carts C, Users U
             WHERE C.pid = P.product_id
             AND C.uid = 2
@@ -122,7 +121,53 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             ''', uid=uid, totalPrice=totalPrice)
             
             if len(rows) == 0:
-                return "hi"
-        
+                return "You do not have enough money"
+            else:
+                for row in rows:
+                    if row.needed > row.have:
+                        unavailable.append(row.pid)
+                if len(unavailable) != 0:
+                    return "One or more items in your cart have limited stock!"
+                else:
+                    totalItems = len(rows)
+                    #push cart to orders table
+                    seq = app.db.execute('''SELECT MAX(order_id)+1 FROM Orders''')
+                    oid = int(*seq[0])
+                    app.db.execute('''INSERT INTO Orders (order_id, user_id, total_price, total_items, time_stamp)
+                    VALUES (:oid, :uid, :totalPrice, :totalItems, current_timestamp)''', 
+                    oid=oid, uid=uid, totalPrice=totalPrice, totalItems=totalItems)
+
+                    
+                    for row in rows:
+                        #push each cart item to purchases table
+                        app.db.execute('''INSERT INTO Purchases (order_id, pid, quantity, fulfillment_status)
+                        VALUES (:oid, :pid, :quantity, 'ordered')''',
+                        oid=oid, pid=row.pid, quantity=row.needed)
+
+                        #update stock available
+                        app.db.execute('''UPDATE Products SET quantity = :quantity
+                        WHERE product_id = :pid''', pid=row.pid, quantity=row.have-row.needed)
+
+                        #update seller balance
+                        getSeller = app.db.execute('''SELECT user_id
+                        FROM Products
+                        WHERE product_id = :pid''',
+                        pid=row.pid)
+                        seller_uid = int(*getSeller[0])
+                        seller = User.get(seller_uid)
+                        balance = float(seller.balance) + float(row.needed*row.price)
+                        app.db.execute('''UPDATE Users SET balance = :balance
+                        WHERE user_id = :uid''', uid=seller_uid, balance=balance)
+                    
+                    #update buyer and seller balances
+                    buyerBalance = float(user.balance) - float(totalPrice)
+                    app.db.execute('''UPDATE Users SET balance = :balance
+                    WHERE user_id = :uid''', uid=uid, balance=buyerBalance)
+                    
+                    #delete everything in cart
+                    app.db.execute('''DELETE FROM Carts
+                    WHERE uid = :uid''', uid=uid)
+                    return redirect(url_for('cart.cart'))
+
     elif request.method == "GET":
         return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, quantities=quantities)
