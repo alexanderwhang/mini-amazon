@@ -10,7 +10,9 @@
 		<th scope="col">Review Time</th>
 		<th scope="col">Review Content</th>
 		<th scope="col">Review Rating</th>
+		{% if curruserid is defined %}
 		<th scope="col">Edit Review</th>
+		{% endif %}
 	</tr>
   </thead>
   <tbody>
@@ -22,8 +24,6 @@
 		<th>{{review.review_rating}}</th>
 		{% if curruserid == review.uid %}
 		<th><a href="{{ url_for('review.editreview', review_id = review.id) }}" type="button" class="btn btn-light">Edit</a></th>
-		{% else %}
-		<th></th>
 		{% endif %}
 	</tr>
     {% endfor %}

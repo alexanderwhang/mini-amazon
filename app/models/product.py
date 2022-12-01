@@ -5,7 +5,7 @@ class Category:
         self.cat = cat
 
 class Product:
-    def __init__(self, product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating):
+    def __init__(self, product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating, num_reviews=None):
         self.product_id = product_id
         self.user_id = user_id
         self.category = category
@@ -16,6 +16,7 @@ class Product:
         self.quantity = quantity
         self.available = available
         self.avg_rating = avg_rating
+        self.num_reviews = num_reviews
 
     @staticmethod
     def get(id):
@@ -45,6 +46,19 @@ FROM Products
 WHERE product_id = :sku
 ''',
                               sku=sku)
+        return [Product(*row) for row in rows] if rows else None
+
+    @staticmethod
+    def get_itemsSoldByUser(userid):
+        rows = app.db.execute('''
+SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating, count(r.id) as num_reviews
+FROM Products as p
+left outer join Review as r
+    on p.product_id = r.pid
+WHERE user_id = :userid
+group by product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+''',
+                              userid=userid)
         return [Product(*row) for row in rows] if rows else None
 
     @staticmethod

@@ -6,6 +6,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from .models.user import User, BadUpdateException
+from .models.product import Product
 
 
 from flask import Blueprint
@@ -118,14 +119,24 @@ class FindUserForm(FlaskForm):
 def user():
     form = FindUserForm()
     user = None
+    isSeller = False
+    soldProducts = []
+    reviews = []
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
             user = User.get(form.userId.data.strip())
-            print(user)
             if user is None:
                 flash(f"User {form.userId.data.strip()} not found")
-
+            else:
+                soldProducts = Product.get_itemsSoldByUser(user.id)
+                if soldProducts is not None:
+                    isSeller = True
+    print(soldProducts)
+    if user is None:
+        return render_template('user.html', title='User', form=form)
     return render_template('user.html', 
                         title='User', 
+                        isSeller = isSeller,
+                        soldProducts=soldProducts,
                         user=user, 
                         form=form)

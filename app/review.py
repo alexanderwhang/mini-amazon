@@ -31,7 +31,11 @@ def editreview():
 def showproductreviews():
     product_id = request.args.get('product_id', None)
     allReviews = Review.get_all_by_pid(product_id)
-    print(current_user.id)
-    return render_template('productreviewlist.html',
+    if current_user.is_authenticated:
+        print(current_user.id)
+        return render_template('productreviewlist.html',
                         all_product_reviews = allReviews,
                         curruserid=current_user.id)
+    else:
+        return render_template('productreviewlist.html',
+                        all_product_reviews = allReviews)

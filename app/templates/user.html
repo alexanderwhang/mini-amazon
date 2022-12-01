@@ -25,7 +25,45 @@
 </form>
 
 {% if user is defined %}
-<h2>User ID: {{user.id}}</h2>
-<h2>User: {{user.firstname}} {{user.lastname}}</h2>
+	<h1>User: {{user.firstname}} {{user.lastname}}</h1>
+	<h3>Contact: {{user.email}}</h3>
+	
+	{% if isSeller is sameas true %}
+		<h3>Shipping Address: {{user.address}}</h3>
+
+		<br></br>
+		<h1>Sold Items</h1>
+		<table class='table table-hover table-bordered container'>
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">Product ID</th>
+					<th scope="col">Product Name</th>
+					<th scope="col">Category</th>
+					<th scope="col">Price</th>
+					<th scope="col">Description</th>
+					<th scope="col">Average Rating</th>
+					<th scope="col">Reviews</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for product in soldProducts %}
+				<tr>
+					<th>{{product.product_id}}</th>
+					<th>{{product.name}}</th>
+					<th>{{product.category}}</th>
+					<th>{{product.price}}</th>
+					<th>{{product.description}}</th>
+					<th>{{product.avg_rating}}</th>
+					
+					<th>
+						<form method="POST" action="{{ url_for('review.showproductreviews', product_id = product.product_id) }}">
+							<input class="btn" type="submit" name="Reviews" value="Reviews">
+						</form>
+					</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+	  	</table>
+	{% endif %}
 {% endif %}
 {% endblock %}
