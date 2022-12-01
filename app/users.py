@@ -131,7 +131,6 @@ def user():
                 soldProducts = Product.get_itemsSoldByUser(user.id)
                 if soldProducts is not None:
                     isSeller = True
-    print(soldProducts)
     if user is None:
         return render_template('user.html', title='User', form=form)
     return render_template('user.html', 

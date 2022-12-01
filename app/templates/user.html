@@ -54,12 +54,13 @@
 					<th>{{product.price}}</th>
 					<th>{{product.description}}</th>
 					<th>{{product.avg_rating}}</th>
-					
+					{% if product.num_reviews > 0 %}
 					<th>
-						<form method="POST" action="{{ url_for('review.showproductreviews', product_id = product.product_id) }}">
-							<input class="btn" type="submit" name="Reviews" value="Reviews">
-						</form>
+						<a href="{{ url_for('review.showproductreviews', product_id = product.product_id) }}" type="button" class="btn btn-light">Reviews ({{product.num_reviews}})</a>
 					</th>
+					{% else %}
+					<th>Reviews ({{product.num_reviews}})</th>
+					{% endif %}
 				</tr>
 				{% endfor %}
 			</tbody>

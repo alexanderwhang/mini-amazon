@@ -121,10 +121,10 @@ def gen_reviews(orders):
         writer = get_csv_writer(f)
         print('product reviews...', end=' ', flush=True)
         rev_id = 0
-        for users in range(3):
-            for product in range(19):
-                uid = users
-                pid = product+1
+        for uid in orders:
+            for pid in orders[uid]:
+                if (fake.random_int(min=1,max=3)!=1): #33% chance to write reviews
+                    continue
                 rating = fake.random_int(min=1, max=5)
                 review = fake.sentence(nb_words=4)[:-1]
                 timestamp = fake.date_time()
