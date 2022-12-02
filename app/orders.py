@@ -22,7 +22,7 @@ class Orders:
         rows = app.db.execute('''
 SELECT id, user_id, total_price, total_items, time_stamp
 FROM Orders
-WHERE order_id = :id
+WHERE id = :id
 ''',
                               id=id)
         return Orders(*(rows[0])) if rows else None
