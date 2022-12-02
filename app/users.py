@@ -7,6 +7,10 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from .models.user import User, BadUpdateException
 from .models.product import Product
+from .models.purchase import Purchase
+from .models.order import Order
+
+
 
 
 from flask import Blueprint
@@ -84,7 +88,7 @@ class EditProfileForm(FlaskForm):
     newLastName = StringField('New Last Name', validators=[])
     newBalance = StringField('New Balance', validators=[])
     passwordConfirmation = PasswordField('Enter Password to Confirm', validators=[DataRequired()])
-    submit = SubmitField('Search')
+    submit = SubmitField('Update')
 
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -139,3 +143,45 @@ def user():
                         soldProducts=soldProducts,
                         user=user, 
                         form=form)
+class SearchPurchaseForm(FlaskForm):
+    keyword = StringField('Search Past Purchases', validators=[])
+    submit = SubmitField('Search')
+
+@bp.route('/purchasehistory', methods=['GET', 'POST'])
+@bp.route('/purchasehistory/<action>', methods=['GET', 'POST'])
+def purchasehistory(action=None):
+    user = User.get(current_user.id)
+    datefilter = "all"
+    form = SearchPurchaseForm()
+
+    if request.method == "POST":
+        if action=="filterdate":
+            if 'dateFilter' in request.form:
+                datefilter=request.form['dateFilter']
+                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter)
+                return render_template('userpurchases.html', 
+                            title='User Purchases',
+                            currDatefilter=datefilter,
+                            purchase_history=purchases,
+                            form=form)
+
+    if form.validate_on_submit():
+        if len(form.keyword.data.strip()) > 0:
+            purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, form.keyword.data.strip())
+            print(purchases)
+            if len(purchases) == 0:
+                flash(f"No Items Found")
+            return render_template('userpurchases.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        purchase_history=purchases,
+                        form=form)
+
+    purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter)
+    return render_template('userpurchases.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        purchase_history=purchases,
+                        form=form)
+
+   

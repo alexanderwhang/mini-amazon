@@ -14,30 +14,48 @@ class Purchase:
         self.fulfillment_status = fulfillment_status
 
     @staticmethod
-    def get_all_purchases_by_user(user_id):
-        rows = app.db.execute('''
-with userOrders as (
-    SELECT order_id
-    from Orders
-    WHERE user_id = :user_id
-)
-select 
-    userOrders.order_id as order_id, 
-    Products.name as product_name, 
-    Products.price as product_price, 
-    Purchases.quantity as quantity, 
-    Purchases.quantity*Products.price as total_price,
-    Purchases.fulfillment_status as fulfillment_status
-from 
-    userOrders, 
-    Products, 
-    Purchases
-where 
-    Purchases.order_id = userOrders.order_id
-    and Purchases.pid = Products.product_id
-''',
+    def get_all_purchases_by_user(user_id, datefilter=None,keyword=None):
+        interval = "" #finds all historic purchases
+        keywordSearch = "" #finds all purchases
+        if datefilter is not None:
+            if datefilter=='month':
+                interval = "and time_stamp >= current_date - interval '1 months'"
+            elif datefilter=='3month':
+                interval = "and time_stamp >= current_date - interval '3 months'"
+            elif datefilter=='year':
+                interval = "and time_stamp >= current_date - interval '1 years'"
+        
+            
+
+        if keyword is not None:
+            keywordSearch = f"and Products.name like '%{keyword}%'"
+
+        rows = app.db.execute(f'''
+        with userOrders as (
+            SELECT order_id
+            from Orders
+            WHERE user_id = :user_id
+            {interval}
+        )
+        select 
+            userOrders.order_id as order_id, 
+            Products.name as product_name, 
+            Products.price as product_price, 
+            Purchases.quantity as quantity, 
+            Purchases.quantity*Products.price as total_price,
+            Purchases.fulfillment_status as fulfillment_status
+        from 
+            userOrders, 
+            Products, 
+            Purchases
+        where 
+            Purchases.order_id = userOrders.order_id
+            and Purchases.pid = Products.product_id
+            {keywordSearch}
+        ''',
                               user_id=user_id)
         return [Purchase(*row) for row in rows]
+
 
     @staticmethod
     def user_email_to_id(user_email):
