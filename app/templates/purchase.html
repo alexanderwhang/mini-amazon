@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Order ID: {{purchases[0].order_id}}</h2>
+<table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Subtotal</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pur in purchases%}
+        <tr>
+          <td>{{pur.product_name}}</td>
+          <td>{{pur.product_price}}</td>
+          <td>{{pur.quantity}}</td>
+          <td>{{pur.total_price}}</td>
+          <td>{{pur.fulfillment_status}}</td>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h4>{{totalPrice}}</h4>
+  <h4>Overall purchase status: {{status}}</h4>
+{% endblock %}
