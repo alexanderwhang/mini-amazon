@@ -12,6 +12,9 @@ SELECT pg_catalog.setval('public.orders_id_seq',
                     false);    
                     
 \COPY Products FROM 'Products.csv' WITH DELIMITER ',' NULL '' CSV
+SELECT pg_catalog.setval('public.products_id_seq',
+                         (SELECT MAX(id)+1 FROM Products),
+                         false);
 
 \COPY Review FROM 'Review.csv' WITH DELIMITER ',' NULL '' CSV
 SELECT pg_catalog.setval('public.review_id_seq',
