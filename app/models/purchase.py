@@ -32,7 +32,7 @@ class Purchase:
 
         rows = app.db.execute(f'''
         with userOrders as (
-            SELECT order_id
+            SELECT id as order_id
             from Orders
             WHERE user_id = :user_id
             {interval}
@@ -50,7 +50,7 @@ class Purchase:
             Purchases
         where 
             Purchases.order_id = userOrders.order_id
-            and Purchases.pid = Products.product_id
+            and Purchases.pid = Products.id
             {keywordSearch}
         ''',
                               user_id=user_id)
@@ -61,7 +61,7 @@ class Purchase:
     def user_email_to_id(user_email):
         rows = app.db.execute(
             """
-            SELECT user_id
+            SELECT id
             FROM Users
             WHERE email = :user_email
             """,
@@ -84,7 +84,7 @@ from
     Purchases
 where 
     Purchases.order_id = :order_id
-    and Purchases.pid = Products.product_id
+    and Purchases.pid = Products.id
 ''',
                               order_id=order_id)
         return [Purchase(*row) for row in rows]
@@ -99,7 +99,7 @@ class OrderPrice:
 SELECT SUM(Products.price * Purchases.quantity)
 FROM Products, Purchases
 WHERE Purchases.order_id = :oid
-AND Purchases.pid = Products.product_id
+AND Purchases.pid = Products.id
 ''',
                               oid=oid)
         if str(*price[0]) == 'None':

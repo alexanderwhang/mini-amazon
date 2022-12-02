@@ -21,9 +21,9 @@ class Product:
     @staticmethod
     def get(id):
         rows = app.db.execute('''
-SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+SELECT id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 FROM Products
-WHERE product_id = :id
+WHERE id = :id
 ''',
                               id=id)
         return Product(*(rows[0])) if rows is not None else None
@@ -31,7 +31,7 @@ WHERE product_id = :id
     @staticmethod
     def get_all(available=True):
         rows = app.db.execute('''
-SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+SELECT id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 FROM Products
 WHERE available = :available
 ''',
@@ -41,9 +41,9 @@ WHERE available = :available
     @staticmethod
     def get_SKU(sku):
         rows = app.db.execute('''
-SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+SELECT id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 FROM Products
-WHERE product_id = :sku
+WHERE id = :sku
 ''',
                               sku=sku)
         return [Product(*row) for row in rows] if rows else None
@@ -51,12 +51,12 @@ WHERE product_id = :sku
     @staticmethod
     def get_itemsSoldByUser(userid):
         rows = app.db.execute('''
-SELECT product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating, count(r.id) as num_reviews
+SELECT p.id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating, count(r.id) as num_reviews
 FROM Products as p
 left outer join Review as r
-    on p.product_id = r.pid
+    on p.id = r.pid
 WHERE user_id = :userid
-group by product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+group by p.id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 ''',
                               userid=userid)
         return [Product(*row) for row in rows] if rows else None
@@ -80,7 +80,7 @@ group by product_id, user_id, category, name, description, price, imageurl, quan
             rows = app.db.execute("""
 INSERT INTO Products(user_id, category, name, description, price, imageurl, quantity, available, avg_rating)
 VALUES(:uid, :category, :name, :description, :price, :imgurl, :quantity, True, 0)
-RETURNING product_id
+RETURNING id
 """,
                                 uid=user_id, category=category, name=name, description=description, price=price,
                                 imgurl=imageurl, quantity=quantity)

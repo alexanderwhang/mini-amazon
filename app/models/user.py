@@ -18,7 +18,7 @@ class User(UserMixin):
     @staticmethod
     def get_by_auth(email, password):
         rows = app.db.execute("""
-SELECT password, user_id, email, firstname, lastname, address, seller, balance
+SELECT password, id, email, firstname, lastname, address, seller, balance
 FROM Users
 WHERE email = :email
 """,
@@ -45,10 +45,10 @@ WHERE email = :email
     def register(email, password, firstname, lastname, address):
         try:
             rows = app.db.execute("""
-INSERT INTO Users(email, password, firstname, lastname, address, seller, balance)
-VALUES(:email, :password, :firstname, :lastname, :address, False, 0)
-RETURNING user_id
-""",
+            INSERT INTO Users(email, password, firstname, lastname, address, seller, balance)
+            VALUES(:email, :password, :firstname, :lastname, :address, False, 0)
+            RETURNING id
+            """,
                                   email=email,
                                   password=generate_password_hash(password),
                                   firstname=firstname, lastname=lastname, address=address)
@@ -64,9 +64,9 @@ RETURNING user_id
     @login.user_loader
     def get(id):
         rows = app.db.execute("""
-SELECT user_id, email, firstname, lastname, address, seller, balance
+SELECT id, email, firstname, lastname, address, seller, balance
 FROM Users
-WHERE user_id = :id
+WHERE id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
@@ -76,7 +76,7 @@ WHERE user_id = :id
         rows = app.db.execute("""
             SELECT password, email, address, firstname, lastname, balance
             FROM Users
-            where user_id = :id
+            where id = :id
             """,
             id=id)
         oldpassword = rows[0][0]
@@ -124,7 +124,7 @@ WHERE user_id = :id
                 raise BadUpdateException("New balance can't be negative")
             query.append(f"balance = {newBalance}")
         query = ", ".join(query)
-        query = "UPDATE Users SET " + query + f" WHERE user_id = {id};"
+        query = "UPDATE Users SET " + query + f" WHERE id = {id};"
 
         app.db.execute(query)   
 
