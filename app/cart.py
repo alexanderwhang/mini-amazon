@@ -131,11 +131,11 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                 else:
                     totalItems = len(rows)
                     #push cart to orders table
-                    seq = app.db.execute('''SELECT MAX(id)+1 FROM Orders''')
-                    oid = int(*seq[0])
-                    app.db.execute('''INSERT INTO Orders (id, user_id, total_price, total_items, time_stamp)
-                    VALUES (:oid, :uid, :totalPrice, :totalItems, current_timestamp)''', 
-                    oid=oid, uid=uid, totalPrice=totalPrice, totalItems=totalItems)
+                    #oid = int(*seq[0])
+                    oid = app.db.execute('''INSERT INTO Orders (user_id, total_price, total_items, time_stamp)
+                    VALUES (:uid, :totalPrice, :totalItems, current_timestamp)
+                    returning id''', 
+                    uid=uid, totalPrice=totalPrice, totalItems=totalItems)[0][0]
 
                     
                     for row in rows:
