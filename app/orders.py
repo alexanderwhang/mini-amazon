@@ -20,7 +20,7 @@ class Orders:
     @staticmethod
     def get(id):
         rows = app.db.execute('''
-SELECT order_id, user_id, total_price, total_items, time_stamp
+SELECT id, user_id, total_price, total_items, time_stamp
 FROM Orders
 WHERE order_id = :id
 ''',
@@ -30,7 +30,7 @@ WHERE order_id = :id
     @staticmethod
     def get_all_orders_by_user(user_id):
         rows = app.db.execute('''
-SELECT order_id, user_id, total_price, total_items, time_stamp
+SELECT id, user_id, total_price, total_items, time_stamp
 FROM Orders
 WHERE user_id = :user_id
 ''',

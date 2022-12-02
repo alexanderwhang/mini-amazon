@@ -18,7 +18,7 @@ class Review:
     def user_email_to_id(user_email):
         rows = app.db.execute (
             """
-            SELECT user_id
+            SELECT id
             FROM Users
             WHERE email = :user_email
             """,

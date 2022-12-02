@@ -47,7 +47,7 @@ ORDER BY time_added_to_cart DESC
 SELECT Carts.id, uid, pid, name, price, Carts.quantity, time_added_to_cart
 FROM Carts, Products
 WHERE uid = :uid
-AND Carts.pid = Products.product_id
+AND Carts.pid = Products.id
 ORDER BY time_added_to_cart DESC
 ''',
                               uid=uid)
@@ -114,9 +114,9 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                 C.pid as pid,
                 P.price as price
             FROM Products P, Carts C, Users U
-            WHERE C.pid = P.product_id
-            AND C.uid = 2
-            AND U.user_id = 2
+            WHERE C.pid = P.id
+            AND C.uid = :uid
+            AND U.id = :uid
             AND U.balance >= :totalPrice
             ''', uid=uid, totalPrice=totalPrice)
             
@@ -146,23 +146,23 @@ def cart(action=None, uid=None, pid=None, quantity=1):
 
                         #update stock available
                         app.db.execute('''UPDATE Products SET quantity = :quantity
-                        WHERE product_id = :pid''', pid=row.pid, quantity=row.have-row.needed)
+                        WHERE id = :pid''', pid=row.pid, quantity=row.have-row.needed)
 
                         #update seller balance
                         getSeller = app.db.execute('''SELECT user_id
                         FROM Products
-                        WHERE product_id = :pid''',
+                        WHERE id = :pid''',
                         pid=row.pid)
                         seller_uid = int(*getSeller[0])
                         seller = User.get(seller_uid)
                         balance = float(seller.balance) + float(row.needed*row.price)
                         app.db.execute('''UPDATE Users SET balance = :balance
-                        WHERE user_id = :uid''', uid=seller_uid, balance=balance)
+                        WHERE id = :uid''', uid=seller_uid, balance=balance)
                     
                     #update buyer and seller balances
                     buyerBalance = float(user.balance) - float(totalPrice)
                     app.db.execute('''UPDATE Users SET balance = :balance
-                    WHERE user_id = :uid''', uid=uid, balance=buyerBalance)
+                    WHERE id = :uid''', uid=uid, balance=buyerBalance)
                     
                     #delete everything in cart
                     app.db.execute('''DELETE FROM Carts

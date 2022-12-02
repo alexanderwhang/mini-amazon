@@ -13,9 +13,9 @@ class Inventory:
     def get_all_inventories_by_user(user_id):
         #the colon in below area means that it is what is passed in
         rows = app.db.execute('''
-SELECT Users.user_id, Products.product_id, Products.name, Products.price, Products.quantity
+SELECT Users.id, Products.id, Products.name, Products.price, Products.quantity
 FROM Users, Products
-WHERE Users.user_id = :user_id AND Users.user_id = Products.user_id
+WHERE Users.id = :user_id AND Users.id = Products.user_id
 ''',
                               user_id=user_id)
         return [Inventory(*row) for row in rows]
@@ -24,7 +24,7 @@ WHERE Users.user_id = :user_id AND Users.user_id = Products.user_id
     def remove_product(user_id, product_id):
         rows = app.db.execute('''
 DELETE FROM Products
-WHERE user_id = :user_id AND product_id = :product_id
+WHERE user_id = :user_id AND id = :product_id
 ''',
                               user_id =user_id, product_id = product_id)
         return redirect(url_for('inventory.seller'))
@@ -53,7 +53,7 @@ WHERE user_id = :user_id AND product_id = :product_id
 #         rows = app.db.execute('''
 # UPDATE Products
 # SET quantity = :quantity
-# WHERE user_id = :user_id AND product_id = :product_id
+# WHERE user_id = :user_id AND id = :product_id
 # ''',
 #                               user_id =user_id, product_id = product_id, quantity= quantity)
 #         return [Inventory(*row) for row in rows]
@@ -72,13 +72,13 @@ class Fulfillment:
     @staticmethod
     def get_all_fulfillment_by_user(user_id):
         rows = app.db.execute('''
-SELECT Orders.user_id, Orders.order_id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items
+SELECT Orders.user_id, Orders.id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items
 FROM Orders, Products, Purchases, Users
 WHERE (
-    Orders.order_id = Purchases.order_id AND
-    Products.user_id = Users.user_id AND
-    Products.product_id = Purchases.pid AND
-    Users.user_id = :user_id
+    Orders.id = Purchases.order_id AND
+    Products.user_id = Users.id AND
+    Products.id = Purchases.pid AND
+    Users.id = :user_id
 )
 ORDER BY Orders.time_stamp DESC
 ''',

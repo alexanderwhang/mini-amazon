@@ -45,10 +45,10 @@ WHERE email = :email
     def register(email, password, firstname, lastname, address):
         try:
             rows = app.db.execute("""
-INSERT INTO Users(email, password, firstname, lastname, address, seller, balance)
-VALUES(:email, :password, :firstname, :lastname, :address, False, 0)
-RETURNING user_id
-""",
+            INSERT INTO Users(email, password, firstname, lastname, address, seller, balance)
+            VALUES(:id, :email, :password, :firstname, :lastname, :address, False, 0)
+            RETURNING user_id
+            """,
                                   email=email,
                                   password=generate_password_hash(password),
                                   firstname=firstname, lastname=lastname, address=address)
@@ -124,7 +124,7 @@ WHERE user_id = :id
                 raise BadUpdateException("New balance can't be negative")
             query.append(f"balance = {newBalance}")
         query = ", ".join(query)
-        query = "UPDATE Users SET " + query + f" WHERE user_id = {id};"
+        query = "UPDATE Users SET " + query + f" WHERE id = {id};"
 
         app.db.execute(query)   
 
