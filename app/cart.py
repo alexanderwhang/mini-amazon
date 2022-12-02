@@ -75,7 +75,7 @@ class CartPrice:
 SELECT SUM(price * Carts.quantity)
 FROM Carts, Products
 WHERE uid = :uid
-AND Carts.pid = Products.product_id
+AND Carts.pid = Products.id
 ''',
                               uid=uid)
         if str(*price[0]) == 'None':
