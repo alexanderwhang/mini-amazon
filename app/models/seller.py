@@ -15,7 +15,7 @@ class Inventory:
         rows = app.db.execute('''
 SELECT Users.user_id, Products.product_id, Products.name, Products.price, Products.quantity
 FROM Users, Products
-WHERE Users.user_id = :user_id AND Users.user_id = Products.user_id
+WHERE Products.user_id = :user_id AND Users.user_id = Products.user_id
 ''',
                               user_id=user_id)
         return [Inventory(*row) for row in rows]
@@ -29,38 +29,9 @@ WHERE user_id = :user_id AND product_id = :product_id
                               user_id =user_id, product_id = product_id)
         return redirect(url_for('inventory.seller'))
 
-#     @staticmethod
-#     def get_all_inventories_by_product(product_id):
-#         rows = app.db.execute('''
-# SELECT Users.user_id, Products.product_id, Products.name, Products.price, Products.quantity
-# FROM Users, Products
-# WHERE Products.product_id = :product_id AND Users.user_id = Products.user_id
-# ''',
-#                               product_id=product_id)
-#         return [Inventory(*row) for row in rows]
-    
-#     @staticmethod
-#     def add_product(product_id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating):
-#         rows = app.db.execute('''
-# INSERT INTO Products
-# VALUES (:product_id, :user_id, :category, :name, :description, :price, :imageurl, :quantity, :available, :avg_rating)
-# ''',
-#                               user_id =user_id, product_id = product_id)
-#         return [Inventory(*row) for row in rows]
-
-#     @staticmethod
-#     def update_product(user_id, product_id, quantity):
-#         rows = app.db.execute('''
-# UPDATE Products
-# SET quantity = :quantity
-# WHERE user_id = :user_id AND product_id = :product_id
-# ''',
-#                               user_id =user_id, product_id = product_id, quantity= quantity)
-#         return [Inventory(*row) for row in rows]
-
 
 class Fulfillment:
-    def __init__(self, user_id, order_id, address,name, fulfillment_status, time_stamp, total_items):
+    def __init__(self, user_id, order_id, address,name, fulfillment_status, time_stamp, total_items, product_id):
         self.user_id = user_id #from orders, this is the BUYER
         self.order_id = order_id #from orders and purchases
         self.address = address #from users
@@ -68,11 +39,12 @@ class Fulfillment:
         self.fulfillment_status = fulfillment_status #from purchases
         self.time_stamp = time_stamp #from orders
         self.total_items = total_items #from orders 
+        self.product_id = product_id
 
     @staticmethod
     def get_all_fulfillment_by_user(user_id):
         rows = app.db.execute('''
-SELECT Orders.user_id, Orders.order_id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items
+SELECT Orders.user_id, Orders.order_id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items, Products.product_id
 FROM Orders, Products, Purchases, Users
 WHERE (
     Orders.order_id = Purchases.order_id AND
@@ -95,20 +67,45 @@ WHERE order_id = :order_id AND product_id = :product_id
                               order_id = order_id, fulfillment_status = fulfillment_status)
         return [Fulfillment(*row) for row in rows]
 
-#     @staticmethod
-#     def get_all_fulfillment_by_order(order_id):
-#         rows = app.db.execute('''
-# SELECT Users.user_id, Products.name, Orders.order_id, Orders.time_stamp, Orders.total_items, Users.address, Purchases.fulfillment_status
-# FROM Orders, Products, Purchases, Users
-# WHERE (
-#     Orders.order_id = Purchases.order_id AND
-#     Orders.user_id = Users.user_id AND
-#     Products.product_id = Purchases.pid AND
-#     Orders.order_id = :order_id
-# )
-# ORDER BY Orders.time_stamp DESC
-# ''',
-#                               order_id=order_id)
-#         return [Fulfillment(*row) for row in rows]
 
 
+
+class moreProduct:
+    def __init__(self, user_id, name, category,description, price, imageurl, quantity):
+        self.user_id = user_id #from orders, this is the BUYER
+        self.name = name #from orders and purchases
+        self.category = category #from users
+        self.description = description
+        self.price = price #from purchases
+        self.imageurl = imageurl #from orders
+        self.quantity = quantity #from orders 
+
+    @staticmethod
+    def add_product(user_id, name, category, description, price, imageurl, quantity):
+        try:
+            quantity = int(quantity)
+        except Exception as e:
+            raise BadUpdateException("Quantity must be a number")
+
+        if quantity <= 0:
+            raise BadUpdateException("Quantity must be greater than 0")
+
+        try:
+            price = float(price)
+        except Exception as e:
+            raise BadUpdateException("Price must be a Float")
+
+        try:
+            app.db.execute("""
+INSERT INTO Products(user_id, category, name, description, price, imageurl, quantity, available, avg_rating)
+VALUES(:uid, :category, :name, :description, :price, :imgurl, :quantity, True, 0)
+RETURNING product_id
+""",
+                                uid=user_id, category=category, name=name, description=description, price=price,
+                                imgurl=imageurl, quantity=quantity)
+            return redirect(url_for('inventory.seller'))
+        except Exception as e:
+            # likely email already in use; better error checking and reporting needed;
+            # the following simply prints the error to the console:
+            print(str(e))
+            return None
