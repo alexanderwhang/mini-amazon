@@ -46,7 +46,7 @@ WHERE email = :email
         try:
             rows = app.db.execute("""
             INSERT INTO Users(email, password, firstname, lastname, address, seller, balance)
-            VALUES(:id, :email, :password, :firstname, :lastname, :address, False, 0)
+            VALUES(:email, :password, :firstname, :lastname, :address, False, 0)
             RETURNING id
             """,
                                   email=email,
