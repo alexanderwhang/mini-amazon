@@ -24,12 +24,14 @@ class FindProductByName(FlaskForm):
 def searchbySKU():
     SKUForm = FindProductBySKU()
     product = None
-    user_id = Review.user_email_to_id(current_user.email)
+    if current_user.is_authenticated:
+        user_id = Review.user_email_to_id(current_user.email)
     user_review_exists = None
     if SKUForm.validate_on_submit():
         if len(SKUForm.productSKU.data.strip()) > 0:
             product = Product.get_SKU(SKUForm.productSKU.data.strip())
-            user_review_exists = Review.review_exists_check(user_id, SKUForm.productSKU.data.strip())
+            if current_user.is_authenticated:
+                user_review_exists = Review.review_exists_check(user_id, SKUForm.productSKU.data.strip())
             print(user_review_exists)
             if product is None:
                 flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
