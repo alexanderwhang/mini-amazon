@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Items Saved For Later:</h2>
+<table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Price</th>
+        <th scope="col">Time Saved</th>
+        <th scope="col">Add to Cart?</th>
+        <th scope="col">Remove Item?</th>
+    </thead>
+    <tbody>
+        {% for product in saved %}
+        <tr>
+            <td scope="row">{{product.name}}</td>
+            <td scope="row">{{product.price}}</td>
+            <td scope="row">{{product.time}}</td>
+            <td>
+                <form method="POST" action="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.pid)}}">
+                    <input class="btn" type="submit" name="delete" value="Delete">
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.pid)}}">
+                    <input class="btn" type="submit" name="delete" value="Delete">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
