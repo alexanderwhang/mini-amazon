@@ -79,7 +79,7 @@ AND Carts.pid = Products.id
 ''',
                               uid=uid)
         if str(*price[0]) == 'None':
-            return "Your cart is empty!"
+            return "0.00"
         return str(*price[0])
 
 @bp.route('/cart', methods=['GET', 'POST'])
@@ -102,8 +102,18 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             SET quantity = :quantity
             WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid, quantity=request.form['quant'])
             return redirect(url_for('cart.cart'))
-        
+
+        if action == 'save':
+            app.db.execute('''DELETE FROM Carts
+            WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
+
+            app.db.execute('''INSERT INTO Saved (uid, pid, time)
+            VALUES (:uid, :pid, current_timestamp)''', uid=uid, pid=pid)
+            return redirect(url_for('cart.cart'))
+
         if action == 'confirm':
+            if len(cart) == 0:
+                return redirect(url_for('cart.cart'))
             unavailable = []
             rows = app.db.execute('''
             SELECT
@@ -137,7 +147,6 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                     returning id''', 
                     uid=uid, totalPrice=totalPrice, totalItems=totalItems)[0][0]
 
-                    
                     for row in rows:
                         #push each cart item to purchases table
                         app.db.execute('''INSERT INTO Purchases (order_id, pid, quantity, fulfillment_status)

@@ -146,7 +146,17 @@ def gen_carts(orders):
                 id += 1
         print('generated carts')
     return 
-    
+
+def gen_save(orders):
+    with open('Save.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('save...', end=' ', flush=True)
+        for uid, pids in orders.items():
+            for pid in pids:
+                timestamp = fake.date_time()
+                writer.writerow([uid, pid, timestamp])
+        print('generated carts')
+    return 
 
 if __name__ == "__main__":
     sellers = gen_users()
@@ -157,3 +167,4 @@ if __name__ == "__main__":
     orders = gen_orders(purchases,available_pids)
     gen_reviews(orders)
     gen_carts(orders)
+    gen_save(orders)
