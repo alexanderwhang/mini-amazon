@@ -14,18 +14,38 @@ bp = Blueprint('review', __name__)
 
 class EditReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[])
+    newRating = StringField('Enter New Rating', validators=[])
+    submitReview = SubmitField('Submit')
+
+class AddReview(FlaskForm):
+    newReview = StringField('Enter New Review', validators=[])
+    newRating = StringField('Enter New Rating', validators=[])
     submitReview = SubmitField('Submit')
 
 @bp.route('/editreview', methods=['GET', 'POST'])
 def editreview():
     editReviewForm = EditReview()
-    review_id = request.args.get('review_id', None)
+    # review_id = request.args.get('review_id', None)
+    product_id = request.args.get('product_id', None)
+    user_id = Review.user_email_to_id(current_user.email)
     if editReviewForm.validate_on_submit():
         if len(editReviewForm.newReview.data.strip()) > 0:
-            Review.edit_review(review_id, editReviewForm.newReview.data.strip())
+            Review.edit_review(product_id, user_id, editReviewForm.newReview.data.strip(),editReviewForm.newRating.data.strip())
             return redirect(url_for('index.index'))
     return render_template('editreview.html', 
                         form = editReviewForm)
+
+@bp.route('/addreview', methods=['GET', 'POST'])
+def addreview():
+    addReviewForm = AddReview()
+    product_id = request.args.get('product_id', None)
+    user_id = Review.user_email_to_id(current_user.email)
+    if addReviewForm.validate_on_submit():
+        if len(addReviewForm.newReview.data.strip()) > 0:
+            Review.add_review(product_id, user_id, addReviewForm.newReview.data.strip(),addReviewForm.newRating.data.strip())
+            return redirect(url_for('index.index'))
+    return render_template('addreview.html', 
+                        form = addReviewForm)
 
 @bp.route('/showproductreviews', methods=['GET', 'POST'])
 def showproductreviews():

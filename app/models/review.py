@@ -53,39 +53,46 @@ class Review:
         return [Review(*row) for row in rows]
     
     @staticmethod
-    def edit_review(review_id, new_review):
+    def review_exists_check(uid, pid):
+        rows = app.db.execute (
+            '''
+            SELECT COUNT(*)
+            FROM Review
+            WHERE pid = :pid AND uid = :uid
+            ''',
+            pid=pid,
+            uid=uid
+        )
+        return rows[0][0] # This is the count (number) of reviews where pid = pid and uid = uid
+    
+    @staticmethod
+    def edit_review(product_id, user_id, new_review, new_rating):
         app.db.execute (
             """
             UPDATE Review
             SET
-                review_content = :new_review
+                review_content = :new_review,
+                review_rating = :new_rating
             WHERE
-                id = :review_id
+                uid = :user_id AND pid = :product_id
             """,
-            review_id=review_id,
-            new_review=new_review
+            product_id=product_id,
+            user_id=user_id,
+            new_review=new_review,
+            new_rating=new_rating
         )
         return
-        
-    # @staticmethod
-    # def get(id):
-    #     rows = app.db.execute('''
-    #     SELECT id, uid, pid, review_time, review_content
-    #     FROM Review
-    #     WHERE id = :id
-    #     ''',
-    #                           id=id)
-    #     return Review(*(rows[0])) if rows else None
-
-    # @staticmethod
-    # def get_all_by_uid_since(uid, since):
-    #     rows = app.db.execute('''
-    # SELECT id, uid, pid, review_time, review_content
-    # FROM Review
-    # WHERE uid = :uid
-    # AND review_time >= :since
-    # ORDER BY review_time DESC
-    # ''',
-    #                               uid=uid,
-    #                               since=since)
-    #         return [Review(*row) for row in rows]
+    
+    @staticmethod
+    def add_review(product_id, user_id, new_review, new_rating):
+        app.db.execute (
+            """
+            INSERT INTO Review (uid, pid, review_time, review_content, review_rating)
+            VALUES (:user_id, :product_id, current_timestamp AT TIME ZONE 'UTC', :new_review, :new_rating)
+            """,
+            product_id=product_id,
+            user_id=user_id,
+            new_review=new_review,
+            new_rating=new_rating
+        )
+        return
