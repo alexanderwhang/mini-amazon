@@ -56,6 +56,13 @@
 </p>
 <p style="text-align:left;">
     <a href="{{ url_for('review.showproductreviews', product_id = products[0].product_id) }}" type="button" class="btn btn-light">View Reviews</a>
+    {% if products[0] is defined and current_user.is_authenticated %}
+        {% if user_review_exists != 0 %}
+        <a href="{{ url_for('review.editreview', product_id = products[0].product_id) }}" type="button" class="btn btn-light">Edit Review</a>
+        {% else %}
+        <a href="{{ url_for('review.addreview', product_id = products[0].product_id) }}" type="button" class="btn btn-light">Add Review</a>
+        {% endif %}
+    {% endif %}
 </p>
 {% endif %}
 {% endblock %}
