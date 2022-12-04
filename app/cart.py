@@ -108,7 +108,7 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
 
             app.db.execute('''INSERT INTO Saved (uid, pid, time)
-            VALUES (:uid, :pid, current_timestamp)''', uid=uid, pid=pid)
+            VALUES (:uid, :pid, current_timestamp(0))''', uid=uid, pid=pid)
             return redirect(url_for('cart.cart'))
 
         if action == 'confirm':
@@ -143,8 +143,8 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                     #push cart to orders table
                     #oid = int(*seq[0])
                     oid = app.db.execute('''INSERT INTO Orders (user_id, total_price, total_items, time_stamp)
-                    VALUES (:uid, :totalPrice, :totalItems, current_timestamp)
-                    returning id''', 
+                    VALUES (:uid, :totalPrice, :totalItems, current_timestamp(0))
+                    RETURNING id''', 
                     uid=uid, totalPrice=totalPrice, totalItems=totalItems)[0][0]
 
                     for row in rows:

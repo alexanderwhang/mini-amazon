@@ -33,4 +33,21 @@ ORDER BY time DESC
 def save(action=None, uid=None, pid=None):
     user = User.get(current_user.id)
     saved = Save.get_by_uid(current_user.id)
+
+    if request.method == "POST":
+        if action == 'add':
+            app.db.execute('''DELETE FROM Saved
+            WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
+
+            app.db.execute('''INSERT INTO Carts (uid, pid, quantity, time_added_to_cart)
+            VALUES (:uid, :pid, 1, current_timestamp(0))
+            RETURNING id''', uid=uid, pid=pid)
+
+            return redirect(url_for('save.save'))
+        
+        if action == 'delete':
+            app.db.execute('''DELETE FROM Saved
+            WHERE uid = :uid AND pid = :pid''', uid=uid, pid=pid)
+            return redirect(url_for('save.save'))
+
     return render_template('saved.html', title='Saved', user=user, saved=saved)
