@@ -8,10 +8,6 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from .models.user import User, BadUpdateException
 from .models.product import Product
 from .models.purchase import Purchase
-from .models.order import Order
-
-
-
 
 from flask import Blueprint
 bp = Blueprint('users', __name__)
