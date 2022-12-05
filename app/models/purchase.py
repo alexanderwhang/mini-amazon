@@ -5,7 +5,7 @@ bp = Blueprint('purchase', __name__)
 
 
 class Purchase:
-    def __init__(self, order_id, product_name, product_price, quantity, total_price, fulfillment_status, sellerid):
+    def __init__(self, order_id, product_name, product_price, quantity, total_price, fulfillment_status, sellerid, time_stamp=None):
         self.order_id = order_id
         self.product_name = product_name #from product
         self.product_price= product_price #from product
@@ -13,6 +13,7 @@ class Purchase:
         self.total_price = total_price #calc'd from product
         self.fulfillment_status = fulfillment_status
         self.sellerid = sellerid # From Products
+        self.time_stamp = time_stamp
 
     @staticmethod
     def get_all_purchases_by_user(user_id, datefilter=None,keyword=None):
@@ -33,7 +34,7 @@ class Purchase:
 
         rows = app.db.execute(f'''
         with userOrders as (
-            SELECT id as order_id
+            SELECT id as order_id, time_stamp
             from Orders
             WHERE user_id = :user_id
             {interval}
@@ -45,7 +46,8 @@ class Purchase:
             Purchases.quantity as quantity, 
             Purchases.quantity*Products.price as total_price,
             Purchases.fulfillment_status as fulfillment_status,
-            Products.user_id as sellerid
+            Products.user_id as sellerid,
+            userOrders.time_stamp as time_stamp
         from 
             userOrders, 
             Products, 
@@ -54,6 +56,7 @@ class Purchase:
             Purchases.order_id = userOrders.order_id
             and Purchases.pid = Products.id
             {keywordSearch}
+        order by time_stamp DESC
         ''',
                               user_id=user_id)
         return [Purchase(*row) for row in rows]

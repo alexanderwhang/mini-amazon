@@ -90,6 +90,9 @@ class EditProfileForm(FlaskForm):
 
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
+    if not current_user.is_authenticated:
+        return render_template('profile.html', title='Edit Profile')
+
     user = User.get(current_user.id)
     form = EditProfileForm()
 
@@ -160,7 +163,6 @@ def user():
     reviews = []
 
     passedin_sellerid = request.args.get('sellerid', default=None, type=None)
-
     if passedin_sellerid is not None and current_user.is_authenticated:
         # form = None
         user = User.get(passedin_sellerid)
@@ -185,14 +187,16 @@ def user():
 
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
-            user = User.get(form.userId.data.strip())
+            try: 
+                user = User.get(form.userId.data.strip())
+            except:
+                user = None
             if user is None:
                 flash(f"User {form.userId.data.strip()} not found")
                 return render_template('user.html', 
                     title='User', 
                     isSeller = isSeller, #if true, displays soldProducts
                     soldProducts=soldProducts,
-                    user=user, 
                     form=form,
                     sellerReviews = sellerReviews,
                     sellerReviewExists = reviewForSellerExists,
@@ -201,6 +205,7 @@ def user():
             else:
                 soldProducts = getProductsOfSeller(user.id)
                 isSeller = True if len(soldProducts) > 0 else False 
+
         if current_user.is_authenticated:
             sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
         else:
@@ -230,16 +235,22 @@ class SearchPurchaseForm(FlaskForm):
 @bp.route('/purchasehistory', methods=['GET', 'POST'])
 @bp.route('/purchasehistory/<action>', methods=['GET', 'POST'])
 def purchasehistory(action=None):
-    user = User.get(current_user.id)
     datefilter = "all"
     form = SearchPurchaseForm()
+    if not current_user.is_authenticated:
+        return render_template('purchasehistory.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        purchase_history=[],
+                        form=form)
 
+    user = User.get(current_user.id)
     if request.method == "POST":
         if action=="filterdate":
             if 'dateFilter' in request.form:
                 datefilter=request.form['dateFilter']
                 purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter)
-                return render_template('userpurchases.html', 
+                return render_template('purchasehistory.html', 
                             title='User Purchases',
                             currDatefilter=datefilter,
                             purchase_history=purchases,
@@ -251,14 +262,14 @@ def purchasehistory(action=None):
             print(purchases)
             if len(purchases) == 0:
                 flash(f"No Items Found")
-            return render_template('userpurchases.html', 
+            return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
                         purchase_history=purchases,
                         form=form)
 
     purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter)
-    return render_template('userpurchases.html', 
+    return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
                         purchase_history=purchases,
