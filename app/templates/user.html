@@ -32,6 +32,34 @@
 		<h3>Shipping Address: {{user.address}}</h3>
 
 		<br></br>
+		<h1>Seller Reviews</h1>
+		{% if sellerReviewExists is sameas false %}
+			<a href="{{ url_for('sellerreview.addsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Add Review</a>
+		{% else %}
+			<a href="{{ url_for('sellerreview.editsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Edit Review</a>
+			<a href="{{ url_for('sellerreview.deletesellerreview', user_id = user_id, sellerid = user.id) }}" type="button" class="btn btn-light">Delete Review</a>
+		{% endif %}
+		<table class='table table-hover table-bordered container'>
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">User ID</th>
+					<th scope="col">Timestamp</th>
+					<th scope="col">Review</th>
+					<th scope="col">Rating</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for review in sellerReviews %}
+				<tr>
+					<th>{{review.uid}}</th>
+					<th>{{review.review_time}}</th>
+					<th>{{review.review_content}}</th>
+					<th>{{review.review_rating}}</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+	  	</table>
+		<br></br>
 		<h1>Sold Items</h1>
 		<table class='table table-hover table-bordered container'>
 			<thead class="thead-dark">
