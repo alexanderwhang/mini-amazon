@@ -46,39 +46,63 @@ class Purchase:
             elif sortby=='totalPrice':
                 orderby = "order by total_price DESC"
 
-            
-            
-
         if keyword is not None:
-            keywordSearch = f"and Products.name like '%{keyword}%'"
+            rows = app.db.execute(f'''
+            with userOrders as (
+                SELECT id as order_id, time_stamp
+                from Orders
+                WHERE user_id = :user_id
+                {interval}
+            )
+            select 
+                userOrders.order_id as order_id, 
+                Products.name as product_name, 
+                Products.price as product_price, 
+                Purchases.quantity as quantity, 
+                Purchases.quantity*Products.price as total_price,
+                Purchases.fulfillment_status as fulfillment_status,
+                Products.user_id as sellerid,
+                userOrders.time_stamp as time_stamp
+            from 
+                userOrders, 
+                Products, 
+                Purchases
+            where 
+                Purchases.order_id = userOrders.order_id
+                and Purchases.pid = Products.id
+                and (lower(Products.name) like lower(:keyword))
 
-        rows = app.db.execute(f'''
-        with userOrders as (
-            SELECT id as order_id, time_stamp
-            from Orders
-            WHERE user_id = :user_id
-            {interval}
-        )
-        select 
-            userOrders.order_id as order_id, 
-            Products.name as product_name, 
-            Products.price as product_price, 
-            Purchases.quantity as quantity, 
-            Purchases.quantity*Products.price as total_price,
-            Purchases.fulfillment_status as fulfillment_status,
-            Products.user_id as sellerid,
-            userOrders.time_stamp as time_stamp
-        from 
-            userOrders, 
-            Products, 
-            Purchases
-        where 
-            Purchases.order_id = userOrders.order_id
-            and Purchases.pid = Products.id
-            {keywordSearch}
-        {orderby}
-        ''',
-                              user_id=user_id)
+            {orderby}
+            ''',
+                                user_id=user_id, keyword=f"%{keyword}%")
+        else:
+            rows = app.db.execute(f'''
+            with userOrders as (
+                SELECT id as order_id, time_stamp
+                from Orders
+                WHERE user_id = :user_id
+                {interval}
+            )
+            select 
+                userOrders.order_id as order_id, 
+                Products.name as product_name, 
+                Products.price as product_price, 
+                Purchases.quantity as quantity, 
+                Purchases.quantity*Products.price as total_price,
+                Purchases.fulfillment_status as fulfillment_status,
+                Products.user_id as sellerid,
+                userOrders.time_stamp as time_stamp
+            from 
+                userOrders, 
+                Products, 
+                Purchases
+            where 
+                Purchases.order_id = userOrders.order_id
+                and Purchases.pid = Products.id
+                {keywordSearch}
+            {orderby}
+            ''',
+                                user_id=user_id)
         return [Purchase(*row) for row in rows]
 
     
