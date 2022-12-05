@@ -91,29 +91,29 @@ WHERE id = :id
             raise BadUpdateException("Incorrect Password")
 
 
-        query = []
         if len(newEmail) > 0:
             if newEmail == oldemail:
                 raise BadUpdateException("New email can't be old email")
             if User.email_exists(newEmail):
                 raise BadUpdateException("Email already exists")
-            query.append(f"email = '{newEmail}'")
+            app.db.execute("UPDATE Users SET email = :newEmail WHERE id = :id",id=id, newEmail=newEmail)
+
         if len(newPassword) > 0:
             if check_password_hash(oldpassword, newPassword):
                 raise BadUpdateException("New password can't be old password")
-            query.append(f"password = '{generate_password_hash(newPassword)}' ")
+            app.db.execute("UPDATE Users SET password = :newPShash WHERE id = :id",id=id, newPShash=generate_password_hash(newPassword))
         if len(newAddress) > 0:
             if oldaddress == newAddress:
                 raise BadUpdateException("New address can't be old address")
-            query.append(f"address = '{newAddress}'")
+            app.db.execute("UPDATE Users SET address = :newAddress WHERE id = :id",id=id, newAddress=newAddress)
         if len(newFirstName) > 0:
             if oldfirstname == newFirstName:
                 raise BadUpdateException("New first name can't be old first name")
-            query.append(f"firstname = '{newFirstName}'")
+            app.db.execute("UPDATE Users SET firstname = :newFirstName WHERE id = :id",id=id, newFirstName=newFirstName)
         if len(newLastName) > 0:
             if oldlastname == newLastName:
                 raise BadUpdateException("New last name can't be old last name")
-            query.append(f"lastname = '{newLastName}'")
+            app.db.execute("UPDATE Users SET lastname = :newLastName WHERE id = :id",id=id, newLastName=newLastName)
         if len(newBalance) > 0:
             try:
                 newBalance = int(newBalance)
@@ -122,11 +122,7 @@ WHERE id = :id
 
             if newBalance < 0:
                 raise BadUpdateException("New balance can't be negative")
-            query.append(f"balance = {newBalance}")
-        query = ", ".join(query)
-        query = "UPDATE Users SET " + query + f" WHERE id = {id};"
-
-        app.db.execute(query)   
+            app.db.execute("UPDATE Users SET balance = :newBalance WHERE id = :id",id=id, newBalance=newBalance)
 
         return User.get(id)
 
