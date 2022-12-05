@@ -6,13 +6,14 @@ class Review:
     This is just a TEMPLATE for Review, you should change this by adding or 
         replacing new columns, etc. for your design.
     """
-    def __init__(self, id, uid, pid, review_time, review_content, review_rating):
+    def __init__(self, id, uid, pid, review_time, review_content, review_rating, review_image):
         self.id = id
         self.uid = uid
         self.pid = pid
         self.review_time = review_time
         self.review_content = review_content
         self.review_rating = review_rating
+        self.review_image = review_image
 
     @staticmethod
     def user_email_to_id(user_email):
@@ -91,37 +92,41 @@ class Review:
         return rows # This is the first review where pid = pid and uid = uid
 
     @staticmethod
-    def edit_review(product_id, user_id, new_review, new_rating):
+    def edit_review(product_id, user_id, new_review, new_rating, new_image = ""):
         app.db.execute (
             """
             UPDATE Review
             SET
                 review_content = :new_review,
                 review_rating = :new_rating,
-                review_time = DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp)
+                review_time = DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp),
+                review_image = :new_image
             WHERE
                 uid = :user_id AND pid = :product_id
             """,
             product_id=product_id,
             user_id=user_id,
             new_review=new_review,
-            new_rating=new_rating
+            new_rating=new_rating,
+            new_image=new_image
         )
         return
     
     @staticmethod
-    def add_review(product_id, user_id, new_review, new_rating):
+    def add_review(product_id, user_id, new_review, new_rating, new_image = ""):
         app.db.execute (
             """
-            INSERT INTO Review (uid, pid, review_time, review_content, review_rating)
-            VALUES (:user_id, :product_id, DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp), :new_review, :new_rating)
+            INSERT INTO Review (uid, pid, review_time, review_content, review_rating, review_image)
+            VALUES (:user_id, :product_id, DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp), :new_review, :new_rating, :new_image)
             """,
             product_id=product_id,
             user_id=user_id,
             new_review=new_review,
-            new_rating=new_rating
+            new_rating=new_rating,
+            new_image=new_image
         )
         return
+        
 
     @staticmethod
     def delete_review(review_id):

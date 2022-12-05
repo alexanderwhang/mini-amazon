@@ -147,6 +147,9 @@ def getSellerRatings(isSeller, sellerReviews):
             sellerNumReviews = sellerNumReviews + 1
         sellerAvgRating = sellerAvgRating / sellerNumReviews
     return sellerAvgRating, sellerNumReviews
+
+def hasProductPurchasedFromSeller(user_id, sellerid):
+    return SellerReview.can_user_review_seller(user_id, sellerid)
      
 @bp.route('/user', methods=['GET', 'POST'])
 def user():
@@ -160,6 +163,7 @@ def user():
     reviewForSellerExists = False
     sellerAvgRating = None 
     sellerNumReviews = 0
+    canReviewThisSeller = False
     reviews = []
 
     passedin_sellerid = request.args.get('sellerid', default=None, type=None)
@@ -173,6 +177,7 @@ def user():
             soldProducts = getProductsOfSeller(user.id)
             isSeller = True if len(soldProducts) > 0 else False 
             sellerAvgRating, sellerNumReviews =  getSellerRatings(isSeller, sellerReviews)
+            canReviewThisSeller = True
         return render_template('user.html', 
             title='User', 
             isSeller = isSeller, #if true, displays soldProducts
@@ -182,7 +187,8 @@ def user():
             sellerReviews = sellerReviews,
             sellerReviewExists = reviewForSellerExists,
             sellerAvgRating = sellerAvgRating,
-            sellerNumReviews = sellerNumReviews)
+            sellerNumReviews = sellerNumReviews,
+            canReviewThisSeller = canReviewThisSeller)
              
 
     if form.validate_on_submit():
@@ -201,13 +207,15 @@ def user():
                     sellerReviews = sellerReviews,
                     sellerReviewExists = reviewForSellerExists,
                     sellerAvgRating = sellerAvgRating,
-                    sellerNumReviews = sellerNumReviews)
+                    sellerNumReviews = sellerNumReviews,
+                    canReviewThisSeller = canReviewThisSeller)
             else:
                 soldProducts = getProductsOfSeller(user.id)
                 isSeller = True if len(soldProducts) > 0 else False 
 
         if current_user.is_authenticated:
             sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
+            canReviewThisSeller = hasProductPurchasedFromSeller(current_user.id, user.id)
         else:
             sellerReviews, reviewForSellerExists = getReviewsOfSeller(None, user.id)
 
@@ -225,7 +233,8 @@ def user():
                 sellerReviews = sellerReviews,
                 sellerReviewExists = reviewForSellerExists,
                 sellerAvgRating = sellerAvgRating,
-                sellerNumReviews = sellerNumReviews)
+                sellerNumReviews = sellerNumReviews,
+                canReviewThisSeller = canReviewThisSeller)
 
 
 class SearchPurchaseForm(FlaskForm):
