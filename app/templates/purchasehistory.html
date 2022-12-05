@@ -27,14 +27,22 @@
 	</form>
 
 	<h2>Purchase History:</h2>
-	<form method="post" action="{{url_for('users.purchasehistory', action='filterdate')}}">
+	<form method="post" action="{{url_for('users.purchasehistory', action='filterSort')}}">
 		<select id="dateFilter" name="dateFilter">
-		<option value='month' {% if currDatefilter=='month' %} selected="selected"{% endif %}>Last Month</option>
-		<option value='3month' {% if currDatefilter=='3month' %} selected="selected"{% endif %}>Last 3 Months</option>
-		<option value='year' {% if currDatefilter=='year' %} selected="selected"{% endif %}>Last Year</option>
-		<option value='all' {% if currDatefilter=='all' %} selected="selected"{% endif %}>All Purchases</option>
+			<option value='month' {% if currDatefilter=='month' %} selected="selected"{% endif %}>Last Month</option>
+			<option value='3month' {% if currDatefilter=='3month' %} selected="selected"{% endif %}>Last 3 Months</option>
+			<option value='year' {% if currDatefilter=='year' %} selected="selected"{% endif %}>Last Year</option>
+			<option value='all' {% if currDatefilter=='all' %} selected="selected"{% endif %}>All Purchases</option>
 		</select>
-		<input class="btn" type="submit" name="filter" value="Filter">
+		<select id="sortby" name="sortby">
+			<option value='time' {% if currSortBy=='time' %} selected="selected"{% endif %}>Sort By Purchase Time</option>
+			<option value='fulfillment' {% if currSortBy=='fulfillment' %} selected="selected"{% endif %}>Sort By Fulfillment Status</option>
+			<option value='productName' {% if currSortBy=='productName' %} selected="selected"{% endif %}>Sort By Product Name</option>
+			<option value='sellerID' {% if currSortBy=='sellerID' %} selected="selected"{% endif %}>Sort By Seller ID</option>
+			<option value='price' {% if currSortBy=='price' %} selected="selected"{% endif %}>Sort By Item Price</option>
+			<option value='totalPrice' {% if currSortBy=='totalPrice' %} selected="selected"{% endif %}>Sort By Total Item Price</option>
+		</select>
+		<input class="btn" type="submit" name="sortButton" value="Sort">
 	</form>
 
 	<table class='table table-hover table-bordered container'>

@@ -16,9 +16,10 @@ class Purchase:
         self.time_stamp = time_stamp
 
     @staticmethod
-    def get_all_purchases_by_user(user_id, datefilter=None,keyword=None):
+    def get_all_purchases_by_user(user_id, datefilter=None,sortby=None,keyword=None):
         interval = "" #finds all historic purchases
         keywordSearch = "" #finds all purchases
+        orderby = ""
         if datefilter is not None:
             if datefilter=='month':
                 interval = "and time_stamp >= current_date - interval '1 months'"
@@ -26,7 +27,26 @@ class Purchase:
                 interval = "and time_stamp >= current_date - interval '3 months'"
             elif datefilter=='year':
                 interval = "and time_stamp >= current_date - interval '1 years'"
-        
+
+        if sortby is not None:
+            if sortby=='time':
+                orderby = "order by time_stamp DESC"
+            elif sortby=='fulfillment':
+                orderby = """order by CASE
+                            WHEN fulfillment_status = 'ordered' then 1
+                            WHEN fulfillment_status = 'shipped' then 2 
+                            WHEN fulfillment_status = 'delivered' then 3
+                            END DESC"""
+            elif sortby=='productName':
+                orderby = "order by product_name ASC"
+            elif sortby=='sellerID':
+                orderby = "order by sellerid ASC"
+            elif sortby=='price':
+                orderby = "order by product_price DESC"
+            elif sortby=='totalPrice':
+                orderby = "order by total_price DESC"
+
+            
             
 
         if keyword is not None:
@@ -56,7 +76,7 @@ class Purchase:
             Purchases.order_id = userOrders.order_id
             and Purchases.pid = Products.id
             {keywordSearch}
-        order by time_stamp DESC
+        {orderby}
         ''',
                               user_id=user_id)
         return [Purchase(*row) for row in rows]

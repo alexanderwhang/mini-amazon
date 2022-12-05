@@ -235,7 +235,10 @@ class SearchPurchaseForm(FlaskForm):
 @bp.route('/purchasehistory', methods=['GET', 'POST'])
 @bp.route('/purchasehistory/<action>', methods=['GET', 'POST'])
 def purchasehistory(action=None):
-    datefilter = "all"
+    #defaults
+    datefilter="all"
+    sortby="time"
+
     form = SearchPurchaseForm()
     if not current_user.is_authenticated:
         return render_template('purchasehistory.html', 
@@ -246,32 +249,38 @@ def purchasehistory(action=None):
 
     user = User.get(current_user.id)
     if request.method == "POST":
-        if action=="filterdate":
+        if action=="filterSort":
             if 'dateFilter' in request.form:
                 datefilter=request.form['dateFilter']
-                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter)
-                return render_template('purchasehistory.html', 
-                            title='User Purchases',
-                            currDatefilter=datefilter,
-                            purchase_history=purchases,
-                            form=form)
+                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby)
+            if 'sortby' in request.form:
+                sortby=request.form['sortby']
+                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby)
+            return render_template('purchasehistory.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        currSortBy=sortby,
+                        purchase_history=purchases,
+                        form=form)
 
     if form.validate_on_submit():
         if len(form.keyword.data.strip()) > 0:
-            purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, form.keyword.data.strip())
+            purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby, form.keyword.data.strip())
             print(purchases)
             if len(purchases) == 0:
                 flash(f"No Items Found")
             return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
+                        currSortBy=sortby,
                         purchase_history=purchases,
                         form=form)
 
-    purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter)
+    purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter, sortby)
     return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
+                        currSortBy=sortby,
                         purchase_history=purchases,
                         form=form)
 
