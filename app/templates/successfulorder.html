@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your order was successfully placed!</h2>
+<br>
+<h4>Your order id: {{oid}}</h4>
+<h4>Total price: ${{totalPrice}}</h4>
+<form action="{{url_for('orders.orders')}}">
+    <input class="btn" type="submit" name="back" value="Go to Orders">
+</form>
+
+{% endblock %}

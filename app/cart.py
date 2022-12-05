@@ -109,6 +109,7 @@ def cart(action=None, uid=None, pid=None, quantity=1):
         if action == 'confirm':
             # if nothing is in the cart, nothing happens
             if len(cart) == 0:
+                flash('Add items to your cart before ordering!')
                 return redirect(url_for('cart.cart'))
             
             unavailable = []
@@ -122,6 +123,7 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                 P.quantity as have,
                 P.available as avail,
                 C.pid as pid,
+                P.name as name,
                 P.price as price
             FROM Products P, Carts C, Users U
             WHERE C.pid = P.id
@@ -131,20 +133,21 @@ def cart(action=None, uid=None, pid=None, quantity=1):
             ''', uid=uid, totalPrice=totalPrice)
             
             # if the query is empty, this means that the user cannot pay for the entire order
+            # the user is redirected to a page where they can see their balance and the cart price
             if len(rows) == 0:
-                return "You do not have enough money"
+                return render_template('balanceerror.html', totalPrice=totalPrice, user=user)
             else:
                 # iterates through each item
                 for row in rows:
                     # if the quantity of an item exceeds the available quantity, add the pid
                     # to a dictionary
                     if row.needed > row.have:
-                        unavailable.append(row.pid)
+                        unavailable.append(row)
                 
                 # if the dictionary is not empty, this means that one item has less stock than
                 # the quantity that is trying to be bought
                 if len(unavailable) != 0:
-                    return "One or more items in your cart have limited stock!"
+                    return render_template('stockerror.html', user=user, unavailable=unavailable)
                 else: # the dictionary is empty and every item is available at the quantity the user has ordered
                     totalItems = len(rows)
                     
@@ -189,7 +192,7 @@ def cart(action=None, uid=None, pid=None, quantity=1):
                     app.db.execute('''DELETE FROM Carts
                     WHERE uid = :uid
                     ''', uid=uid)
-                    return redirect(url_for('cart.cart'))
+                    return render_template('successfulorder.html', oid=oid, totalPrice=totalPrice)
 
     # load cart html template
     elif request.method == "GET":
