@@ -71,6 +71,10 @@ def searchbyName():
     cat = request.args.get('cat', None)
     if cat != None:
         listofproducts = Product.getbyCat(cat)
+        if listofproducts is not None:
+            for product in listofproducts:
+                Review.update_product_ratings(product.product_id) # Update product rating in database before displaying
+        listofproducts = Product.getbyCat(cat)
     else:
         if current_user.is_authenticated:
             user_id = Review.user_email_to_id(current_user.email)
@@ -79,6 +83,10 @@ def searchbyName():
                 listofproducts = Product.get_Name(NameForm.productName.data.strip())
                 if listofproducts is None:
                     flash(f"No products containing '{NameForm.productName.data.strip()}' found.")
+                else:
+                    for product in listofproducts:
+                        Review.update_product_ratings(product.product_id) # Update product rating in database before displaying
+                listofproducts = Product.get_Name(NameForm.productName.data.strip())
 
     return render_template('searchproductname.html', 
                         title='SearchName', 
