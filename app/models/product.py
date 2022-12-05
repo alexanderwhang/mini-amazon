@@ -51,7 +51,7 @@ WHERE id = :sku
     @staticmethod
     def get_Name(title):
         if title is not None:
-            nameSearch = f"WHERE name LIKE '%{title}%'"
+            nameSearch = f"WHERE name LIKE '%{title}%' OR description LIKE '%{title}%'"
 
         rows = app.db.execute(f'''
 SELECT id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
@@ -60,6 +60,25 @@ FROM Products
 ORDER BY name
 ''',
                               title=title)
+        return [Product(*row) for row in rows] if rows else None
+
+    @staticmethod
+    def get_Cat():
+        rows = app.db.execute('''
+SELECT *
+FROM Categories
+ORDER BY cat
+''')
+        return [Category(*row) for row in rows] if rows else None
+
+    @staticmethod
+    def getbyCat(cat):
+        rows = app.db.execute('''
+SELECT *
+FROM Products
+WHERE category = :cat
+''',
+                                cat=cat)
         return [Product(*row) for row in rows] if rows else None
 
     @staticmethod
