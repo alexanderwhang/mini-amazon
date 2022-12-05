@@ -51,7 +51,6 @@
 </p>
 {% endif %}
 <br><br>
-<br><br>
 <p style="text-align:left;">
     <h2>Reviews:</h2>
 </p>
@@ -70,5 +69,25 @@
         {% endif %}
     {% endif %}
 </p>
+<br><br>
+<p style="text-align:left;">
+    <h2>Sellers:</h2>
+</p>
+<table id="products" class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Seller ID</th>
+            <th scope="col">Seller Name</th>
+            <th scope="col">Quantity Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{seller.id}}</td>
+            <td>{{seller.firstname}} {{seller.lastname}}</td>
+            <td>{{products[0].quantity}}</td>
+        </tr>
+    </tbody>
+</table>
 {% endif %}
 {% endblock %}
