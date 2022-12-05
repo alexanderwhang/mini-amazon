@@ -35,6 +35,7 @@ def editreview():
     if editReviewForm.validate_on_submit():
         if len(editReviewForm.newReview.data.strip()) > 0:
             Review.edit_review(product_id, user_id, editReviewForm.newReview.data.strip(),editReviewForm.newRating.data)
+            Review.update_product_ratings(product_id)
             return redirect(url_for('index.index'))
     return render_template('editreview.html', 
                         form = editReviewForm)
@@ -47,6 +48,7 @@ def addreview():
     if addReviewForm.validate_on_submit():
         if len(addReviewForm.newReview.data.strip()) > 0:
             Review.add_review(product_id, user_id, addReviewForm.newReview.data.strip(),addReviewForm.newRating.data)
+            Review.update_product_ratings(product_id)
             return redirect(url_for('index.index'))
     return render_template('addreview.html', 
                         form = addReviewForm)
@@ -58,7 +60,9 @@ def deletereview():
     if deleteReviewForm.validate_on_submit():
         if deleteReviewForm.cancelDeleteReview.data:  # if cancel button is clicked, the form.cancel.data will be True
             return redirect(url_for('index.index'))
+        product_id = Review.get_all_by_id(review_id)[0].pid
         Review.delete_review(review_id)
+        Review.update_product_ratings(product_id)
         return redirect(url_for('index.index'))
     return render_template('deletereview.html', 
                         form = deleteReviewForm)

@@ -53,6 +53,18 @@ class Review:
         return [Review(*row) for row in rows]
     
     @staticmethod
+    def get_all_by_id(review_id):
+        rows = app.db.execute (
+            '''
+            SELECT *
+            FROM Review
+            WHERE id = :review_id
+            ''',
+            review_id=review_id
+        )
+        return [Review(*row) for row in rows]
+    
+    @staticmethod
     def review_exists_check(uid, pid):
         rows = app.db.execute (
             '''
