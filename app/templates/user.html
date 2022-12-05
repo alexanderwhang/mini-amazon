@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if form != None %}
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
@@ -23,6 +24,7 @@
 	</p>
 	<p>{{ form.submit() }}</p>
 </form>
+{% endif %}
 
 {% if user is defined %}
 	<h1>User: {{user.firstname}} {{user.lastname}}</h1>
@@ -33,6 +35,8 @@
 
 		<br></br>
 		<h1>Seller Reviews</h1>
+		<p>Average Rating: {{sellerAvgRating}}</p>
+		<p>Number of Reviews: {{sellerNumReviews}}</p>
 		{% if sellerReviewExists is sameas false %}
 			<a href="{{ url_for('sellerreview.addsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Add Review</a>
 		{% else %}
