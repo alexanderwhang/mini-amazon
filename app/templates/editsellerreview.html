@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p style="text-align:left;">
+   <h1>Edit Your Seller Review!</h1>
+</p>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.newReview.label }}<br />
+        {{ form.newReview(size=32) }}<br />
+        {% for error in form.newReview.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+	<p>
+        {{ form.newRating.label }}<br />
+        {{ form.newRating(size=32) }}<br />
+        {% for error in form.newRating.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
+	</p>
+	<p>{{ form.submitReview() }}</p>
+</form>
+{% endblock %}

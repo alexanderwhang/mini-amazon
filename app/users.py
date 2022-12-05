@@ -8,6 +8,8 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from .models.user import User, BadUpdateException
 from .models.product import Product
 from .models.purchase import Purchase
+from .models.sellerreview import SellerReview
+from .models.review import Review
 
 from flask import Blueprint
 bp = Blueprint('users', __name__)
@@ -121,16 +123,26 @@ def user():
     user = None
     isSeller = False
     soldProducts = []
-    reviews = []
+    sellerReviews = None
+    sellerReviewExists = False
+    user_id = Review.user_email_to_id(current_user.email) # for seller reviews
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
             user = User.get(form.userId.data.strip())
             if user is None:
                 flash(f"User {form.userId.data.strip()} not found")
             else:
+                sellerid = user.id # for seller reviews
+                num_seller_reviews = SellerReview.review_exists_check(user_id, sellerid)
+                if num_seller_reviews != 0:
+                    sellerReviewExists = True
                 soldProducts = Product.get_itemsSoldByUser(user.id)
                 if soldProducts is not None:
+                    for product in soldProducts:
+                        Review.update_product_ratings(product.product_id)
                     isSeller = True
+                    sellerReviews = SellerReview.get_all_seller_reviews(user.id)
+                    soldProducts = Product.get_itemsSoldByUser(user.id)
     if user is None:
         return render_template('user.html', title='User', form=form)
     return render_template('user.html', 
@@ -138,7 +150,10 @@ def user():
                         isSeller = isSeller,
                         soldProducts=soldProducts,
                         user=user, 
-                        form=form)
+                        form=form,
+                        sellerReviews = sellerReviews,
+                        sellerReviewExists = sellerReviewExists,
+                        user_id = user_id)
 class SearchPurchaseForm(FlaskForm):
     keyword = StringField('Search Past Purchases', validators=[])
     submit = SubmitField('Search')

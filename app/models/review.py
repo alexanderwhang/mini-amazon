@@ -97,7 +97,7 @@ class Review:
             UPDATE Review
             SET
                 review_content = :new_review,
-                review_rating = :new_rating
+                review_rating = :new_rating,
                 review_time = DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp)
             WHERE
                 uid = :user_id AND pid = :product_id
