@@ -121,3 +121,41 @@ class Review:
             review_id=review_id
         )
         return
+    
+    @staticmethod
+    def update_product_ratings(product_id = None):
+        if (product_id == None):
+            return
+        else:
+            app.db.execute (
+                """
+                UPDATE Products
+                SET
+                    avg_rating = (
+                        SELECT AVG(review_rating)
+                        FROM Review
+                        WHERE pid = :product_id
+                    )
+                WHERE
+                    id = :product_id
+                """,
+                product_id=product_id
+            )
+        return
+
+    @staticmethod
+    def count_num_ratings(product_id = None):
+        if (product_id == None):
+            return 0
+        else:
+            row = app.db.execute (
+                """
+                SELECT COUNT(*)
+                FROM Review
+                WHERE
+                    pid = :product_id
+                """,
+                product_id=product_id
+            )
+            return row[0][0] # return the count of reviews for a product id
+        return 

@@ -24,18 +24,26 @@ class FindProductByName(FlaskForm):
 def searchbySKU():
     SKUForm = FindProductBySKU()
     product = None
+    number_of_ratings = None
     sku = request.args.get('sku', None)
     if current_user.is_authenticated:
         user_id = Review.user_email_to_id(current_user.email)
     user_review_exists = None
     user_review = None
     if sku != None:
+        Review.update_product_ratings(sku) # Update product rating in database before displaying
+        number_of_ratings = Review.count_num_ratings(sku)
         product = Product.get_SKU(sku)
+        if current_user.is_authenticated:
+            user_review_exists = Review.review_exists_check(user_id, product[0].product_id)
+            user_review = Review.get_review(user_id, product[0].product_id)
         if product is None:
             flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
     else:    
         if SKUForm.validate_on_submit():
             if len(SKUForm.productSKU.data.strip()) > 0:
+                number_of_ratings = Review.count_num_ratings(SKUForm.productSKU.data.strip())
+                Review.update_product_ratings(SKUForm.productSKU.data.strip()) # Update product rating in database before displaying
                 product = Product.get_SKU(SKUForm.productSKU.data.strip())
                 if current_user.is_authenticated:
                     user_review_exists = Review.review_exists_check(user_id, SKUForm.productSKU.data.strip())
@@ -48,7 +56,8 @@ def searchbySKU():
                         products=product,
                         form=SKUForm,
                         user_review_exists=user_review_exists,
-                        user_review = user_review)
+                        user_review = user_review,
+                        number_of_ratings = number_of_ratings)
 
 @bp.route('/searchbyName', methods=['GET', 'POST'])
 def searchbyName():
