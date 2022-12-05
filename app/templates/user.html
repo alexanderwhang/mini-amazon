@@ -37,12 +37,12 @@
 		<h1>Your Reviews for {{user.firstname}} {{user.lastname}}</h1>
 		<p>Average Rating: {{sellerAvgRating}}</p>
 		<p>Number of Reviews: {{sellerNumReviews}}</p>
-		{% if current_user.is_authenticated %}
+		{% if current_user.is_authenticated and canReviewThisSeller is sameas true %}
 			{% if sellerReviewExists is sameas false %}
 				<a href="{{ url_for('sellerreview.addsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Add Review</a>
 			{% else %}
 				<a href="{{ url_for('sellerreview.editsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Edit Review</a>
-				<a href="{{ url_for('sellerreview.deletesellerreview', user_id = user_id, sellerid = user.id) }}" type="button" class="btn btn-light">Delete Review</a>
+				<a href="{{ url_for('sellerreview.deletesellerreview', user_id = current_user.id, sellerid = user.id) }}" type="button" class="btn btn-light">Delete Review</a>
 			{% endif %}
 		{% endif %}
 		<table class='table table-hover table-bordered container'>
