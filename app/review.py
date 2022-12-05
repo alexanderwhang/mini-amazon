@@ -22,10 +22,14 @@ class AddReview(FlaskForm):
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
     submitReview = SubmitField('Submit')
 
+class DeleteReview(FlaskForm):
+    deleteReview = SubmitField('Delete')
+    cancelDeleteReview = SubmitField('Cancel')
+    
+
 @bp.route('/editreview', methods=['GET', 'POST'])
 def editreview():
     editReviewForm = EditReview()
-    # review_id = request.args.get('review_id', None)
     product_id = request.args.get('product_id', None)
     user_id = Review.user_email_to_id(current_user.email)
     if editReviewForm.validate_on_submit():
@@ -46,6 +50,18 @@ def addreview():
             return redirect(url_for('index.index'))
     return render_template('addreview.html', 
                         form = addReviewForm)
+
+@bp.route('/deletereview', methods=['GET', 'POST'])
+def deletereview():
+    deleteReviewForm = DeleteReview()
+    review_id = request.args.get('review_id', None)
+    if deleteReviewForm.validate_on_submit():
+        if deleteReviewForm.cancelDeleteReview.data:  # if cancel button is clicked, the form.cancel.data will be True
+            return redirect(url_for('index.index'))
+        Review.delete_review(review_id)
+        return redirect(url_for('index.index'))
+    return render_template('deletereview.html', 
+                        form = deleteReviewForm)
 
 @bp.route('/showproductreviews', methods=['GET', 'POST'])
 def showproductreviews():

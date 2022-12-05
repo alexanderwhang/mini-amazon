@@ -28,6 +28,7 @@ def searchbySKU():
     if current_user.is_authenticated:
         user_id = Review.user_email_to_id(current_user.email)
     user_review_exists = None
+    user_review = None
     if sku != None:
         product = Product.get_SKU(sku)
         if product is None:
@@ -38,7 +39,7 @@ def searchbySKU():
                 product = Product.get_SKU(SKUForm.productSKU.data.strip())
                 if current_user.is_authenticated:
                     user_review_exists = Review.review_exists_check(user_id, SKUForm.productSKU.data.strip())
-                print(user_review_exists)
+                    user_review = Review.get_review(user_id, SKUForm.productSKU.data.strip())
                 if product is None:
                     flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
 
@@ -46,7 +47,8 @@ def searchbySKU():
                         title='SearchSKU', 
                         products=product,
                         form=SKUForm,
-                        user_review_exists=user_review_exists)
+                        user_review_exists=user_review_exists,
+                        user_review = user_review)
 
 @bp.route('/searchbyName', methods=['GET', 'POST'])
 def searchbyName():
@@ -54,7 +56,6 @@ def searchbyName():
     listofproducts = None
     if current_user.is_authenticated:
         user_id = Review.user_email_to_id(current_user.email)
-    user_review_exists = None
     if NameForm.validate_on_submit():
         if len(NameForm.productName.data.strip()) > 0:
             listofproducts = Product.get_Name(NameForm.productName.data.strip())
@@ -64,5 +65,4 @@ def searchbyName():
     return render_template('searchproductname.html', 
                         title='SearchName', 
                         listofproducts=listofproducts,
-                        form=NameForm,
-                        user_review_exists=user_review_exists)
+                        form=NameForm)
