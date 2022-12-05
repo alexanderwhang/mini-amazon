@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.productName.label }}<br />
+        {{ form.productName(size=32) }}<br />
+        {% for error in form.productName.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		{% endwith %}
+	</p>
+	<p>{{ form.submitName() }}</p>
+</form>
+{% if listofproducts[0] is defined %}
+<h2>Products Found:</h2>
+<table id="products" class='table table-hover table-bordered container'>
+  <thead class="thead-dark">
+	<tr>
+		<th scope="col">Product ID</th>
+		<th scope="col">Product Name</th>
+		<th scope="col">Price</th>
+		<th scope="col">Quantity Available</th>
+	</tr>
+  </thead>
+  <tbody>
+    {% for product in listofproducts %}
+    <tr>
+		<th>{{product.product_id}}</th>
+        <th><a href="{{ url_for('searchproduct.searchbySKU', sku = product.product_id) }}" type="button" class="btn btn-light">{{product.name}}</a></th>
+		<th>{{product.price}}</th>
+		<th>{{product.quantity}}</th>
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+    function dispProduct(n) {
+		
+    }
+</script>
+{% endif %}
+{% endblock %}

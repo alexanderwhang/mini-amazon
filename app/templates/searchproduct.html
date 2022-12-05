@@ -36,13 +36,17 @@
         Price: {{products[0].price}}
     </span>
 </p>
-<br><br>
+<img {
+    float: left;
+    src={{products[0].imageurl}}
+    alt="Product Image"
+}>
 {% if products[0].quantity > 0 %}
-<p style="text-align:right;">
+<p style="text-align:left;">
     Buy Soon! Only {{products[0].quantity}} left!
 </p>
 {% else %}
-<p style="text-align:right;">
+<p style="text-align:left;">
     Currently out of stock. Check back later!
 </p>
 {% endif %}

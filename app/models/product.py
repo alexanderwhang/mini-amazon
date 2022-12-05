@@ -49,6 +49,20 @@ WHERE id = :sku
         return [Product(*row) for row in rows] if rows else None
 
     @staticmethod
+    def get_Name(title):
+        if title is not None:
+            nameSearch = f"WHERE name LIKE '%{title}%'"
+
+        rows = app.db.execute(f'''
+SELECT id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
+FROM Products
+{nameSearch}
+ORDER BY name
+''',
+                              title=title)
+        return [Product(*row) for row in rows] if rows else None
+
+    @staticmethod
     def get_itemsSoldByUser(userid):
         rows = app.db.execute('''
 SELECT p.id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating, count(r.id) as num_reviews
