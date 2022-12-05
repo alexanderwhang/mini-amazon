@@ -92,7 +92,7 @@ WHERE user_id = :userid
 group by p.id, user_id, category, name, description, price, imageurl, quantity, available, avg_rating
 ''',
                               userid=userid)
-        return [Product(*row) for row in rows] if rows else None
+        return [Product(*row) for row in rows]
 
     @staticmethod
     def add_product(user_id, name, category, description, price, imageurl, quantity):
