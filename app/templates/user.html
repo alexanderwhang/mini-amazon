@@ -34,14 +34,16 @@
 		<h3>Shipping Address: {{user.address}}</h3>
 
 		<br></br>
-		<h1>Seller Reviews</h1>
+		<h1>Your Reviews for {{user.firstname}} {{user.lastname}}</h1>
 		<p>Average Rating: {{sellerAvgRating}}</p>
 		<p>Number of Reviews: {{sellerNumReviews}}</p>
-		{% if sellerReviewExists is sameas false %}
-			<a href="{{ url_for('sellerreview.addsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Add Review</a>
-		{% else %}
-			<a href="{{ url_for('sellerreview.editsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Edit Review</a>
-			<a href="{{ url_for('sellerreview.deletesellerreview', user_id = user_id, sellerid = user.id) }}" type="button" class="btn btn-light">Delete Review</a>
+		{% if current_user.is_authenticated %}
+			{% if sellerReviewExists is sameas false %}
+				<a href="{{ url_for('sellerreview.addsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Add Review</a>
+			{% else %}
+				<a href="{{ url_for('sellerreview.editsellerreview', sellerid = user.id) }}" type="button" class="btn btn-light">Edit Review</a>
+				<a href="{{ url_for('sellerreview.deletesellerreview', user_id = user_id, sellerid = user.id) }}" type="button" class="btn btn-light">Delete Review</a>
+			{% endif %}
 		{% endif %}
 		<table class='table table-hover table-bordered container'>
 			<thead class="thead-dark">

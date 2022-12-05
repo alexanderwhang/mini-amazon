@@ -117,6 +117,34 @@ class FindUserForm(FlaskForm):
     userId = StringField('Search a User ID', validators=[])
     submit = SubmitField('Search')
     
+def getReviewsOfSeller(current_user_id, sellerid):
+    if current_user_id is None:
+        reviewForSellerExists = False
+    else:
+        num_seller_reviews = SellerReview.review_exists_check(current_user_id, sellerid)
+        reviewForSellerExists = True if num_seller_reviews > 0 else False
+
+    sellerReviews = SellerReview.get_all_seller_reviews(sellerid)
+    return sellerReviews, reviewForSellerExists
+ 
+def getProductsOfSeller(sellerid):
+    soldProducts = Product.get_itemsSoldByUser(sellerid)
+    for product in soldProducts:
+        Review.update_product_ratings(product.product_id)
+    return soldProducts
+   
+def getSellerRatings(isSeller, sellerReviews):
+    sellerNumReviews = 0
+    sellerAvgRating = 0
+    if len(sellerReviews) == 0:
+        sellerAvgRating = None
+    elif isSeller:
+        for review in sellerReviews:
+            sellerAvgRating = review.review_rating
+            sellerNumReviews = sellerNumReviews + 1
+        sellerAvgRating = sellerAvgRating / sellerNumReviews
+    return sellerAvgRating, sellerNumReviews
+     
 @bp.route('/user', methods=['GET', 'POST'])
 def user():
     form = FindUserForm()
@@ -125,68 +153,76 @@ def user():
     soldProducts = []
     sellerReviews = None
     sellerReviewExists = False
-    if (current_user.is_authenticated):
-        user_id = Review.user_email_to_id(current_user.email) # for seller reviews
+    sellerReviews = [] 
+    reviewForSellerExists = False
+    sellerAvgRating = None 
+    sellerNumReviews = 0
+    reviews = []
+
     passedin_sellerid = request.args.get('sellerid', default=None, type=None)
+
+    if passedin_sellerid is not None and current_user.is_authenticated:
+        # form = None
+        user = User.get(passedin_sellerid)
+        if user is None:
+            flash(f"User {form.userId.data.strip()} not found")
+        else:
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
+            soldProducts = getProductsOfSeller(user.id)
+            isSeller = True if len(soldProducts) > 0 else False 
+            sellerAvgRating, sellerNumReviews =  getSellerRatings(isSeller, sellerReviews)
+        return render_template('user.html', 
+            title='User', 
+            isSeller = isSeller, #if true, displays soldProducts
+            soldProducts=soldProducts,
+            user=user, 
+            form=None,
+            sellerReviews = sellerReviews,
+            sellerReviewExists = reviewForSellerExists,
+            sellerAvgRating = sellerAvgRating,
+            sellerNumReviews = sellerNumReviews)
+             
+
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
             user = User.get(form.userId.data.strip())
             if user is None:
                 flash(f"User {form.userId.data.strip()} not found")
+                return render_template('user.html', 
+                    title='User', 
+                    isSeller = isSeller, #if true, displays soldProducts
+                    soldProducts=soldProducts,
+                    user=user, 
+                    form=form,
+                    sellerReviews = sellerReviews,
+                    sellerReviewExists = reviewForSellerExists,
+                    sellerAvgRating = sellerAvgRating,
+                    sellerNumReviews = sellerNumReviews)
             else:
-                sellerid = user.id # for seller reviews
-                if (current_user.is_authenticated):
-                    num_seller_reviews = SellerReview.review_exists_check(user_id, sellerid)
-                    if num_seller_reviews != 0:
-                        sellerReviewExists = True
-                soldProducts = Product.get_itemsSoldByUser(user.id)
-                if soldProducts is not None:
-                    for product in soldProducts:
-                        Review.update_product_ratings(product.product_id)
-                    isSeller = True
-                    sellerReviews = SellerReview.get_all_seller_reviews(user.id)
-                    soldProducts = Product.get_itemsSoldByUser(user.id)
-    if passedin_sellerid is not None:
-        form = None
-        user = User.get(passedin_sellerid)
-        if user is None:
-            flash(f"User {form.userId.data.strip()} not found")
+                soldProducts = getProductsOfSeller(user.id)
+                isSeller = True if len(soldProducts) > 0 else False 
+        if current_user.is_authenticated:
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
         else:
-            sellerid = user.id # for seller reviews
-            num_seller_reviews = SellerReview.review_exists_check(user_id, sellerid)
-            if num_seller_reviews != 0:
-                sellerReviewExists = True
-            soldProducts = Product.get_itemsSoldByUser(user.id)
-            if soldProducts is not None:
-                for product in soldProducts:
-                    Review.update_product_ratings(product.product_id)
-                isSeller = True
-                sellerReviews = SellerReview.get_all_seller_reviews(user.id)
-                soldProducts = Product.get_itemsSoldByUser(user.id)    
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(None, user.id)
+
+        sellerAvgRating, sellerNumReviews =  getSellerRatings(isSeller, sellerReviews)
+
     if user is None:
         return render_template('user.html', title='User', form=form)
-    
-    sellerNumReviews = 0
-    sellerAvgRating = 0
-    if len(sellerReviews) != 0:
-        for review in sellerReviews:
-            sellerAvgRating = review.review_rating
-            sellerNumReviews = sellerNumReviews + 1
-        sellerAvgRating = sellerAvgRating / sellerNumReviews
-    else:
-        sellerAvgRating = None
 
     return render_template('user.html', 
-                        title='User', 
-                        isSeller = isSeller,
-                        soldProducts=soldProducts,
-                        user=user, 
-                        form=form,
-                        sellerReviews = sellerReviews,
-                        sellerReviewExists = sellerReviewExists,
-                        user_id = user_id,
-                        sellerAvgRating = sellerAvgRating,
-                        sellerNumReviews = sellerNumReviews)
+                title='User', 
+                isSeller = isSeller, #if true, displays soldProducts
+                soldProducts=soldProducts,
+                user=user, 
+                form=form,
+                sellerReviews = sellerReviews,
+                sellerReviewExists = reviewForSellerExists,
+                sellerAvgRating = sellerAvgRating,
+                sellerNumReviews = sellerNumReviews)
+
+
 class SearchPurchaseForm(FlaskForm):
     keyword = StringField('Search Past Purchases', validators=[])
     submit = SubmitField('Search')
