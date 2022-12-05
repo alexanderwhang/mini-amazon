@@ -125,7 +125,8 @@ def user():
     soldProducts = []
     sellerReviews = None
     sellerReviewExists = False
-    user_id = Review.user_email_to_id(current_user.email) # for seller reviews
+    if (current_user.is_authenticated):
+        user_id = Review.user_email_to_id(current_user.email) # for seller reviews
     passedin_sellerid = request.args.get('sellerid', default=None, type=None)
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
@@ -134,9 +135,10 @@ def user():
                 flash(f"User {form.userId.data.strip()} not found")
             else:
                 sellerid = user.id # for seller reviews
-                num_seller_reviews = SellerReview.review_exists_check(user_id, sellerid)
-                if num_seller_reviews != 0:
-                    sellerReviewExists = True
+                if (current_user.is_authenticated):
+                    num_seller_reviews = SellerReview.review_exists_check(user_id, sellerid)
+                    if num_seller_reviews != 0:
+                        sellerReviewExists = True
                 soldProducts = Product.get_itemsSoldByUser(user.id)
                 if soldProducts is not None:
                     for product in soldProducts:

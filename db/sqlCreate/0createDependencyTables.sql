@@ -47,7 +47,8 @@ CREATE TABLE if not exists Review (
     pid INT NOT NULL REFERENCES Products(id),
     review_time timestamp without time zone NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
     review_content VARCHAR(255) NOT NULL,
-    review_rating INT NOT NULL CHECK (review_rating BETWEEN 1 AND 5)
+    review_rating INT NOT NULL CHECK (review_rating BETWEEN 1 AND 5),
+    review_image VARCHAR(255)
 );
 
 drop table if exists SellerReview;
