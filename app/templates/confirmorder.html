@@ -24,7 +24,7 @@
       {% endfor %}
     </tbody>
   </table>
-<h4>Total cart price: ${{totalPrice}}</h4>
+<h4 id="orderPrice">Total cart price: ${{totalPrice}}</h4>
 
 <form method="POST" action="{{url_for('confirmorder.confirmorder', action='coupon', uid=user.id)}}">
   {{ form.csrf_token }}
@@ -52,5 +52,6 @@
 
 <form method="POST" action="{{url_for('confirmorder.confirmorder', action='confirm', uid=user.id)}}">
   <input class="btn" type="submit" name="order" value="Confirm Order">
+  <input class="price" type="hidden" name="totalPrice" value={{totalPrice}}>
 </form>
 {% endblock %}

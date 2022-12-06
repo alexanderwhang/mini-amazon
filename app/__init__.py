@@ -33,7 +33,7 @@ def create_app():
     from .save import bp as save_bp
     app.register_blueprint(save_bp)
 
-    from .models.purchase import bp as purchase_bp
+    from .purchases import bp as purchase_bp
     app.register_blueprint(purchase_bp)
 
     from .searchproduct import bp as searchproduct_bp

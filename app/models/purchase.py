@@ -1,8 +1,4 @@
 from flask import current_app as app
-from flask import Blueprint
-from flask import render_template, redirect, url_for, flash, request
-bp = Blueprint('purchase', __name__)
-
 
 class Purchase:
     def __init__(self, order_id, product_name, product_price, quantity, total_price, fulfillment_status, sellerid, time_stamp=None):
@@ -154,16 +150,4 @@ AND Purchases.pid = Products.id
                               oid=oid)
         if str(*price[0]) == 'None':
             return "This order contains no items!"
-        return "Total price: $"+str(*price[0])
-
-@bp.route('/purchase/<oid>', methods=['GET', 'POST'])
-def purchase(oid=None):
-    status = 'Fulfilled'
-    purchases = Purchase.get_all_purchases_by_order(oid)
-    for purch in purchases:
-        if purch.fulfillment_status == 'shipped' or purch.fulfillment_status == 'ordered':
-            status = 'Pending'
-            break
-
-    totalPrice = OrderPrice.getPrice(oid)
-    return render_template('purchase.html', title='Purchase', purchases=purchases, totalPrice=totalPrice, status=status)
+        return price[0][0]
