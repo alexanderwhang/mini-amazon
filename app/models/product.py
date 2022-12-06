@@ -1,4 +1,5 @@
 from flask import current_app as app
+from flask import request
 
 class Category:
     def __init__(self, cat):
@@ -80,7 +81,31 @@ WHERE category = :cat
 ''',
                                 cat=cat)
         return [Product(*row) for row in rows] if rows else None
+    
+    @staticmethod
+    def addCart(sku, uid):
+        existing = app.db.execute('''
+SELECT *
+FROM Carts
+WHERE uid = :uid AND pid = :sku
+''',
+                                sku=sku, uid = uid)
+        if existing:
+            app.db.execute('''
+UPDATE Carts
+SET quantity = quantity + :qty
+WHERE uid = :uid AND pid = :sku
+''',
+                                sku=sku, uid = uid, qty=request.form['qty'])
+        else:
+            app.db.execute('''
+INSERT INTO Carts (uid, pid, quantity, time_added_to_cart)
+VALUES (:uid, :sku, :qty, DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp))
+''',
+                                sku=sku, uid = uid, qty=request.form['qty'])
+        return
 
+    #method to find all products sold by a user, and the number of reviews for the product. returns a list of Product objects
     @staticmethod
     def get_itemsSoldByUser(userid):
         rows = app.db.execute('''
@@ -94,16 +119,21 @@ group by p.id, user_id, category, name, description, price, imageurl, quantity, 
                               userid=userid)
         return [Product(*row) for row in rows]
 
+    #method for adding a product to the Products table
     @staticmethod
     def add_product(user_id, name, category, description, price, imageurl, quantity):
-        try:
+
+        #check that the quantity added is a valid integer
+        try: 
             quantity = int(quantity)
         except Exception as e:
             raise BadUpdateException("Quantity must be a number")
 
+        #check the quantity added is a positive number
         if quantity <= 0:
             raise BadUpdateException("Quantity must be greater than 0")
 
+        #check that the price of the new product is a valid float
         try:
             price = float(price)
         except Exception as e:
@@ -120,8 +150,6 @@ RETURNING id
             id = rows[0][0]
             return Product.get(id)
         except Exception as e:
-            # likely email already in use; better error checking and reporting needed;
-            # the following simply prints the error to the console:
             print(str(e))
             return None
 

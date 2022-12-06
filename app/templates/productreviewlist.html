@@ -13,6 +13,9 @@
 		{% if curruserid is defined %}
 		<th scope="col">Edit Review</th>
 		<th scope="col">Delete Review</th>
+		{% else %}
+		<th scope="col">Edit Review</th>
+		<th scope="col">Delete Review</th>
 		{% endif %}
 		<th scope="col">Review Image</th>
 	</tr>
@@ -27,6 +30,9 @@
 		{% if curruserid == review.uid %}
 		<th><a href="{{ url_for('review.editreview', product_id = review.pid) }}" type="button" class="btn btn-light">Edit</a></th>
 		<th><a href="{{ url_for('review.deletereview', review_id = review.id) }}" type="button" class="btn btn-light">Delete</a></th>
+		{% else %}
+		<th></th>
+		<th></th>
 		{% endif %}
 		<th>
 			<img src={{review.review_image}} alt="Product Image" width="50rem" height="50rem">
