@@ -73,7 +73,7 @@ def seller(action = None, user_id = None, product_id = None, order_id = None, qu
                            purchase_history=fulfillment,
                            all_products = inventory)
 
-
+#form for adding a new product to the Products Table
 class AddInventoryForm(FlaskForm):
     name = StringField('Item Name', validators=[DataRequired()])
     category = StringField('Category', validators=[DataRequired()])
