@@ -26,9 +26,27 @@
 {% if products[0] is defined %}
 <p style="text-align:left;">
     <h1>{{products[0].name}}</h1>
+    {% if current_user.is_authenticated %}
+    {% if products[0].quantity > 0 %}
     <span style="float:right;">
-        <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Add to Cart</a>
+        <form method="POST" action="{{url_for('searchproduct.searchbySKU', sku = products[0].product_id, uid = current_user.id)}}">
+            <select id="qty"name="qty">
+              <option value='1' {% if products[0].quantity==1 %} selected="selected"{% endif %}>1</option>
+              <option value='2' {% if products[0].quantity==2 %} selected="selected"{% endif %}>2</option>
+              <option value='3' {% if products[0].quantity==3 %} selected="selected"{% endif %}>3</option>
+              <option value='4' {% if products[0].quantity==4 %} selected="selected"{% endif %}>4</option>
+              <option value='5' {% if products[0].quantity==5 %} selected="selected"{% endif %}>5</option>
+              <option value='6' {% if products[0].quantity==6 %} selected="selected"{% endif %}>6</option>
+              <option value='7' {% if products[0].quantity==7 %} selected="selected"{% endif %}>7</option>
+              <option value='8' {% if products[0].quantity==8 %} selected="selected"{% endif %}>8</option>
+              <option value='9' {% if products[0].quantity==9 %} selected="selected"{% endif %}>9</option>
+              <option value='10' {% if products[0].quantity==10 %} selected="selected"{% endif %}>10</option>
+            </select>
+            <input class="btn" type="submit" name="addcart" value="Add to Cart">
+        </form>
     </span>
+    {% endif %}
+    {% endif %}
 </p>
 <p style="text-align:left;">
     <h3>{{products[0].description}}</h3>
