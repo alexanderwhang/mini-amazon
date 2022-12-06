@@ -1,4 +1,5 @@
 from flask import current_app as app
+from flask import request
 
 class Category:
     def __init__(self, cat):
@@ -80,6 +81,29 @@ WHERE category = :cat
 ''',
                                 cat=cat)
         return [Product(*row) for row in rows] if rows else None
+    
+    @staticmethod
+    def addCart(sku, uid):
+        existing = app.db.execute('''
+SELECT *
+FROM Carts
+WHERE uid = :uid AND pid = :sku
+''',
+                                sku=sku, uid = uid)
+        if existing:
+            app.db.execute('''
+UPDATE Carts
+SET quantity = quantity + :qty
+WHERE uid = :uid AND pid = :sku
+''',
+                                sku=sku, uid = uid, qty=request.form['qty'])
+        else:
+            app.db.execute('''
+INSERT INTO Carts (uid, pid, quantity, time_added_to_cart)
+VALUES (:uid, :sku, :qty, DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp))
+''',
+                                sku=sku, uid = uid, qty=request.form['qty'])
+        return
 
     #method to find all products sold by a user, and the number of reviews for the product. returns a list of Product objects
     @staticmethod

@@ -27,6 +27,9 @@ def searchbySKU():
     product = None
     number_of_ratings = None
     sku = request.args.get('sku', None)
+    uid = request.args.get('uid', None)
+    if uid != None:
+        Product.addCart(sku, uid)
     if current_user.is_authenticated:
         user_id = Review.user_email_to_id(current_user.email)
     user_review_exists = None
