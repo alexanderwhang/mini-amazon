@@ -100,6 +100,14 @@ class moreProduct:
 
         try:
             app.db.execute("""
+UPDATE Users
+SET seller = True
+WHERE Users.id = :uid 
+""",
+                                uid=user_id)
+
+
+            app.db.execute("""
             INSERT INTO Categories (cat) VALUES (:category) ON CONFLICT (cat) DO NOTHING
             """,
             category = category)
@@ -110,6 +118,9 @@ RETURNING id
 """,
                                 uid=user_id, category=category, name=name, description=description, price=price,
                                 imgurl=imageurl, quantity=quantity)
+
+            
+
             return redirect(url_for('inventory.seller'))
         except Exception as e:
             # likely email already in use; better error checking and reporting needed;
