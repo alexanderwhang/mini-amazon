@@ -2,6 +2,7 @@ from flask import current_app as app
 from flask import render_template, redirect, url_for, flash, request
 from werkzeug.urls import url_parse
 from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
 from flask_login import current_user
 from .models.user import User, BadUpdateException
 from flask import Blueprint
@@ -64,6 +65,14 @@ AND Carts.pid = Products.id
         if str(*price[0]) == 'None':
             return "0.00"
         return str(*price[0])
+    
+    @staticmethod
+    def getDiscountedPrice(price):
+        return str(price)
+
+class Coupon(FlaskForm):
+    coupon = StringField('Promotional Coupon Code:', validators=[])
+
 
 # cart loads all the relevant information from the database
 @bp.route('/cart', methods=['GET', 'POST'])
@@ -74,10 +83,24 @@ def cart(action=None, uid=None, pid=None, quantity=1):
     cart = Cart.get_all_by_uid(current_user.id) # loads the user's cart
     totalPrice = CartPrice.getPrice(current_user.id) # loads the total price of the user's cart
     quantities = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] # allows a user to buy up to 10 of an item if needed
+    couponDict = {'a': 0.1, 'HOLIDAYS': 0.8, 'WINTER22': 0.78, '20OFF': 0.8, 'HALFOFF': 0.5}
+
+    form = Coupon()
     
     # the posting methods allow for customizability of user's cart including deleting items, updating quantities,
     # saving items for later, and ordering the contents of their cart
     if request.method == "POST":
+
+        if action == 'coupon':
+            if form.validate_on_submit:
+                code = form.coupon.data.strip()
+                if code in couponDict:
+                    multiplier = couponDict[code]
+                    discountedPrice = '%.2f' % (multiplier * float(totalPrice))
+                else:
+                    flash('Invalid coupon code!')
+                    return redirect(url_for('cart.cart'))
+
         # allows users to delete items from their cart
         if action == 'delete':
             app.db.execute('''DELETE FROM Carts
@@ -196,4 +219,4 @@ def cart(action=None, uid=None, pid=None, quantity=1):
 
     # load cart html template
     elif request.method == "GET":
-        return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, quantities=quantities)
+        return render_template('cart.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, quantities=quantities, form=form)

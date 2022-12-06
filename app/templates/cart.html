@@ -59,6 +59,18 @@
   </table>
 <h4>Total cart price: ${{totalPrice}}</h4>
 
+<form method="POST" action="{{url_for('cart.cart', action='coupon', uid=user.id)}}">
+  {{ form.csrf_token }}
+  <p>
+    {{form.coupon.label}}<br />
+    {{form.coupon(size=32)}}
+  </p>
+
+  <p>
+    <input type="submit" value="Apply">
+  </p>
+</form> 
+
 <p>
   {% with messages = get_flashed_messages() %}
   {% if messages %}
