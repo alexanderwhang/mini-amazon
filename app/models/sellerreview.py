@@ -24,6 +24,34 @@ class SellerReview:
         return rows[0][0] # This is the count (number) of reviews where sellerid = sellerid and uid = uid
 
     @staticmethod
+    def can_user_review_seller(user_id, sellerid):
+        product_ids = app.db.execute (
+            """
+            SELECT Products.id
+            FROM Products
+            WHERE user_id = :sellerid
+            """,
+            user_id = user_id,
+            sellerid = sellerid
+        )
+        # print(product_ids[1][0]) product_ids[index][0] is every product_id that the sellerid sells
+        products_this_user_bought = app.db.execute (
+            """
+            SELECT Purchases.pid
+            FROM Purchases
+            LEFT OUTER JOIN Orders on Purchases.order_id = Orders.id
+            WHERE Orders.user_id = :user_id
+            """,
+            user_id = user_id,
+            sellerid = sellerid
+        )
+        for product_id_arr in products_this_user_bought:
+            for seller_product_id in product_ids:
+                if product_id_arr[0] == seller_product_id[0]:
+                    return True
+        return False
+
+    @staticmethod
     def get_all_seller_reviews(sellerid):
         rows = app.db.execute(
             """

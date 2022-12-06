@@ -15,11 +15,13 @@ bp = Blueprint('review', __name__)
 class EditReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[DataRequired()])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
+    newImage = StringField('Enter New Image URL')
     submitReview = SubmitField('Submit')
 
 class AddReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
+    newImage = StringField('Enter New Image URL')
     submitReview = SubmitField('Submit')
 
 class DeleteReview(FlaskForm):
@@ -34,7 +36,7 @@ def editreview():
     user_id = Review.user_email_to_id(current_user.email)
     if editReviewForm.validate_on_submit():
         if len(editReviewForm.newReview.data.strip()) > 0:
-            Review.edit_review(product_id, user_id, editReviewForm.newReview.data.strip(),editReviewForm.newRating.data)
+            Review.edit_review(product_id, user_id, editReviewForm.newReview.data.strip(),editReviewForm.newRating.data, editReviewForm.newImage.data)
             Review.update_product_ratings(product_id)
             return redirect(url_for('index.index'))
     return render_template('editreview.html', 
@@ -47,7 +49,7 @@ def addreview():
     user_id = Review.user_email_to_id(current_user.email)
     if addReviewForm.validate_on_submit():
         if len(addReviewForm.newReview.data.strip()) > 0:
-            Review.add_review(product_id, user_id, addReviewForm.newReview.data.strip(),addReviewForm.newRating.data)
+            Review.add_review(product_id, user_id, addReviewForm.newReview.data.strip(),addReviewForm.newRating.data, addReviewForm.newImage.data)
             Review.update_product_ratings(product_id)
             return redirect(url_for('index.index'))
     return render_template('addreview.html', 

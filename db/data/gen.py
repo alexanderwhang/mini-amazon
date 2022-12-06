@@ -137,12 +137,13 @@ def gen_reviews(orders):
         rev_id = 0
         for uid in orders:
             for pid in orders[uid]:
-                if (fake.random_int(min=1,max=3)!=1): #33% chance to write reviews
+                if (fake.random_int(min=1,max=2)!=1): #33% chance to write reviews
                     continue
                 rating = fake.random_int(min=1, max=5)
                 review = fake.sentence(nb_words=4)[:-1]
                 timestamp = fake.date_time()
-                writer.writerow([rev_id, uid, pid, timestamp, review, rating])
+                imageurl = ""
+                writer.writerow([rev_id, uid, pid, timestamp, review, rating, imageurl])
                 rev_id+=1
         print('generated reviews')
     return 

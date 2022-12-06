@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>One or more of the items have limited stock or are unavailable!</h2>
+<br>
+<table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <th scope="col">Product Name</th>
+        <th scope="col">Stock</th>
+        <th scope="col">Quantity Asked For</th>
+        <th scope="col">Available?</th>
+    </thead>
+    <tbody>
+        {% for product in unavailable%}
+        <td scope="row">{{product.name}}</td>
+        <td>{{product.have}}</td>
+        <td>{{product.needed}}</td>
+        <td>{{product.avail}}</td>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+<h2>Please reduce the quantity of these items or remove them from your cart</h2>
+
+<form action="{{url_for('cart.cart', uid=user.id)}}">
+  <input class="btn" type="submit" name="back" value="Back to Cart">
+</form>
+
+{% endblock %}

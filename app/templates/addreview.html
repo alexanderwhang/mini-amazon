@@ -21,6 +21,13 @@
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
+    <p>
+        {{ form.newImage.label }}<br />
+        {{ form.newImage(size=32) }}<br />
+        {% for error in form.newImage.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
 	<p>
 		{% with messages = get_flashed_messages() %}
 		{% if messages %}
