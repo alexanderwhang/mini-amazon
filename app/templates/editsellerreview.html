@@ -2,7 +2,7 @@
 
 {% block content %}
 <p style="text-align:left;">
-   <h1>Edit Your Review!</h1>
+   <h1>Edit Your Seller Review!</h1>
 </p>
 
 <form action="" method="post">
@@ -18,13 +18,6 @@
         {{ form.newRating.label }}<br />
         {{ form.newRating(size=32) }}<br />
         {% for error in form.newRating.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.newImage.label }}<br />
-        {{ form.newImage(size=32) }}<br />
-        {% for error in form.newImage.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>

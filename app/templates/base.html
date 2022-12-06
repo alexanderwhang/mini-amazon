@@ -53,8 +53,9 @@
         <div style="text-align: left;">
           <a href="/" type="button" class="btn btn-light">Home</a>
           <a href="{{ url_for('users.user') }}" type="button" class="btn btn-light">Find a User</a>
-          <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Search for a Product</a>
-
+          <a href="{{ url_for('searchproduct.browse') }}" type="button" class="btn btn-light">Browse by Category</a>
+          <a href="{{ url_for('searchproduct.searchbyName') }}" type="button" class="btn btn-light">Keyword Search</a>
+          <a href="{{ url_for('searchproduct.searchbySKU') }}" type="button" class="btn btn-light">Search for Product by SKU</a>
         </div>
         {% if current_user.is_authenticated %}
           <div style="text-align: right;">

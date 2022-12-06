@@ -123,12 +123,13 @@ def gen_reviews(orders):
         rev_id = 0
         for uid in orders:
             for pid in orders[uid]:
-                if (fake.random_int(min=1,max=3)!=1): #33% chance to write reviews
+                if (fake.random_int(min=1,max=2)!=1): #33% chance to write reviews
                     continue
                 rating = fake.random_int(min=1, max=5)
                 review = fake.sentence(nb_words=4)[:-1]
                 timestamp = fake.date_time()
-                writer.writerow([rev_id, uid, pid, timestamp, review, rating])
+                imageurl = ""
+                writer.writerow([rev_id, uid, pid, timestamp, review, rating, imageurl])
                 rev_id+=1
         print('generated reviews')
     return 
@@ -146,7 +147,17 @@ def gen_carts(orders):
                 id += 1
         print('generated carts')
     return 
-    
+
+def gen_save(orders):
+    with open('Save.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('save...', end=' ', flush=True)
+        for uid, pids in orders.items():
+            for pid in pids:
+                timestamp = fake.date_time()
+                writer.writerow([uid, pid, timestamp])
+        print('generated carts')
+    return 
 
 if __name__ == "__main__":
     sellers = gen_users()
@@ -157,3 +168,4 @@ if __name__ == "__main__":
     orders = gen_orders(purchases,available_pids)
     gen_reviews(orders)
     gen_carts(orders)
+    gen_save(orders)

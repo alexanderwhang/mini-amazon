@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask import current_app as app
+from flask import current_app as app
 from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -8,6 +9,7 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from .models.user import User, BadUpdateException
 from .models.product import Product, BadUpdateException
+from .models.seller import Inventory, Fulfillment, moreProduct
 from .models.seller import Inventory, Fulfillment, moreProduct
 
 
@@ -83,6 +85,7 @@ class AddInventoryForm(FlaskForm):
 
 @bp.route('/addinventory', methods=['GET', 'POST'])
 def addinventory():
+    user = User.get(current_user.id)
     user = User.get(current_user.id)
     form = AddInventoryForm()
     if form.validate_on_submit():

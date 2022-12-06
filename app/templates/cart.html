@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+<form action="{{url_for('save.save', uid=user.id)}}">
+  <input style="float:right;text-align:right;" class="btn" type="submit" name="save" value="Saved for later">
+</form>
 <h2>{{user.firstname}} {{user.lastname}}'s Cart:</h2>
   <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
@@ -10,6 +13,7 @@
         <th scope="col">Quantity</th>
         <th scope="col">Update Quantity</th>
         <th scope="col">Time Added to Cart</th>
+        <th scope="col">Save For Later?</th>
         <th scope="col">Remove Item From Cart?</th>
       </tr>
     </thead>
@@ -40,6 +44,11 @@
 
           <td>{{product.time_added_to_cart}}</td>
           <td>
+            <form method="POST" action="{{url_for('cart.cart', action='save', uid=user.id, pid=product.pid)}}">
+              <input class="btn" type="submit" name="save" value="Save">
+            </form>
+          </td>
+          <td>
             <form method="POST" action="{{url_for('cart.cart', action='delete', uid=user.id, pid=product.pid)}}">
               <input class="btn" type="submit" name="delete" value="Delete">
             </form>
@@ -50,11 +59,19 @@
   </table>
 <h4>Total cart price: ${{totalPrice}}</h4>
 
+<p>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+</p>
+
 <form method="POST" action="{{url_for('cart.cart', action='confirm', uid=user.id)}}">
   <input class="btn" type="submit" name="order" value="Confirm Order">
 </form>
 {% endblock %}
-
-{% block modal %}{% endblock %}
-
-{% block script %}{% endblock %}

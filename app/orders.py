@@ -9,6 +9,9 @@ from flask import Blueprint
 from flask_sqlalchemy import SQLAlchemy
 bp = Blueprint('orders', __name__)
 
+# ORDERS PAGE:
+
+# the Orders class has all the componenets to load the orders for a user on our ecommerce site
 class Orders:
     def __init__(self, oid, uid, tot_price, tot_items, time):
         self.oid = oid
@@ -17,16 +20,7 @@ class Orders:
         self.tot_items = tot_items
         self.time = time
 
-    @staticmethod
-    def get(id):
-        rows = app.db.execute('''
-SELECT id, user_id, total_price, total_items, time_stamp
-FROM Orders
-WHERE id = :id
-''',
-                              id=id)
-        return Orders(*(rows[0])) if rows else None
-
+    # this method gets all of the orders from a specific user
     @staticmethod
     def get_all_orders_by_user(user_id):
         rows = app.db.execute('''
@@ -37,18 +31,27 @@ WHERE user_id = :user_id
                               user_id=user_id)
         return [Orders(*row) for row in rows]
 
+# orders loads all the relevant information from the database
 @bp.route('/orders', methods=['GET', 'POST'])
 def orders():
-    fulfillmentDict = {}
-    user = User.get(current_user.id)
-    orders = Orders.get_all_orders_by_user(current_user.id)
+    fulfillmentDict = {} # dictionary to keep track of fulfillment
+    user = User.get(current_user.id) # gets the user information
+    orders = Orders.get_all_orders_by_user(current_user.id) # gets order information by user
 
+    # iterates through each order
     for o in orders:
-        purchases = Purchase.get_all_purchases_by_order(o.oid)
+        purchases = Purchase.get_all_purchases_by_order(o.oid) # gets the purchases of each order
+        
+        # iterates through each purchase
         for purch in purchases:
+            # if the fulfillment status of a purchase is shipped or
+            # ordered, set the fulfillment status of that order to pending
             if purch.fulfillment_status == 'shipped' or purch.fulfillment_status == 'ordered':
                 fulfillmentDict[o.oid] = 'Pending'
                 break
+
+            # otherwise, set the status to fulfilled (meaning all purchases are delivered)
             fulfillmentDict[o.oid] = 'Fulfilled'
 
+    # load orders html template
     return render_template('orders.html', title='Orders', user=user, orders=orders, fulfillmentDict=fulfillmentDict)

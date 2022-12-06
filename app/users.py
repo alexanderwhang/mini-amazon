@@ -8,10 +8,8 @@ from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from .models.user import User, BadUpdateException
 from .models.product import Product
 from .models.purchase import Purchase
-from .models.order import Order
-
-
-
+from .models.sellerreview import SellerReview
+from .models.review import Review
 
 from flask import Blueprint
 bp = Blueprint('users', __name__)
@@ -92,6 +90,9 @@ class EditProfileForm(FlaskForm):
 
 @bp.route('/profile', methods=['GET', 'POST'])
 def profile():
+    if not current_user.is_authenticated:
+        return render_template('profile.html', title='Edit Profile')
+
     user = User.get(current_user.id)
     form = EditProfileForm()
 
@@ -119,30 +120,123 @@ class FindUserForm(FlaskForm):
     userId = StringField('Search a User ID', validators=[])
     submit = SubmitField('Search')
     
+def getReviewsOfSeller(current_user_id, sellerid):
+    if current_user_id is None:
+        reviewForSellerExists = False
+    else:
+        num_seller_reviews = SellerReview.review_exists_check(current_user_id, sellerid)
+        reviewForSellerExists = True if num_seller_reviews > 0 else False
+
+    sellerReviews = SellerReview.get_all_seller_reviews(sellerid)
+    return sellerReviews, reviewForSellerExists
+ 
+def getProductsOfSeller(sellerid):
+    soldProducts = Product.get_itemsSoldByUser(sellerid)
+    for product in soldProducts:
+        Review.update_product_ratings(product.product_id)
+    return soldProducts
+   
+def getSellerRatings(isSeller, sellerReviews):
+    sellerNumReviews = 0
+    sellerAvgRating = 0
+    if len(sellerReviews) == 0:
+        sellerAvgRating = None
+    elif isSeller:
+        for review in sellerReviews:
+            sellerAvgRating = review.review_rating
+            sellerNumReviews = sellerNumReviews + 1
+        sellerAvgRating = sellerAvgRating / sellerNumReviews
+    return sellerAvgRating, sellerNumReviews
+
+def hasProductPurchasedFromSeller(user_id, sellerid):
+    return SellerReview.can_user_review_seller(user_id, sellerid)
+     
 @bp.route('/user', methods=['GET', 'POST'])
 def user():
     form = FindUserForm()
     user = None
     isSeller = False
     soldProducts = []
+    sellerReviews = None
+    sellerReviewExists = False
+    sellerReviews = [] 
+    reviewForSellerExists = False
+    sellerAvgRating = None 
+    sellerNumReviews = 0
+    canReviewThisSeller = False
     reviews = []
+
+    passedin_sellerid = request.args.get('sellerid', default=None, type=None)
+    if passedin_sellerid is not None and current_user.is_authenticated:
+        # form = None
+        user = User.get(passedin_sellerid)
+        if user is None:
+            flash(f"User {form.userId.data.strip()} not found")
+        else:
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
+            soldProducts = getProductsOfSeller(user.id)
+            isSeller = True if len(soldProducts) > 0 else False 
+            sellerAvgRating, sellerNumReviews =  getSellerRatings(isSeller, sellerReviews)
+            canReviewThisSeller = True
+        return render_template('user.html', 
+            title='User', 
+            isSeller = isSeller, #if true, displays soldProducts
+            soldProducts=soldProducts,
+            user=user, 
+            form=None,
+            sellerReviews = sellerReviews,
+            sellerReviewExists = reviewForSellerExists,
+            sellerAvgRating = sellerAvgRating,
+            sellerNumReviews = sellerNumReviews,
+            canReviewThisSeller = canReviewThisSeller)
+             
+
     if form.validate_on_submit():
         if len(form.userId.data.strip()) > 0:
-            user = User.get(form.userId.data.strip())
+            try: 
+                user = User.get(form.userId.data.strip())
+            except:
+                user = None
             if user is None:
                 flash(f"User {form.userId.data.strip()} not found")
+                return render_template('user.html', 
+                    title='User', 
+                    isSeller = isSeller, #if true, displays soldProducts
+                    soldProducts=soldProducts,
+                    form=form,
+                    sellerReviews = sellerReviews,
+                    sellerReviewExists = reviewForSellerExists,
+                    sellerAvgRating = sellerAvgRating,
+                    sellerNumReviews = sellerNumReviews,
+                    canReviewThisSeller = canReviewThisSeller)
             else:
-                soldProducts = Product.get_itemsSoldByUser(user.id)
-                if soldProducts is not None:
-                    isSeller = True
+                soldProducts = getProductsOfSeller(user.id)
+                isSeller = True if len(soldProducts) > 0 else False 
+
+        if current_user.is_authenticated:
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(current_user.id, user.id)
+            canReviewThisSeller = hasProductPurchasedFromSeller(current_user.id, user.id)
+        else:
+            sellerReviews, reviewForSellerExists = getReviewsOfSeller(None, user.id)
+
+        sellerAvgRating, sellerNumReviews =  getSellerRatings(isSeller, sellerReviews)
+
     if user is None:
         return render_template('user.html', title='User', form=form)
+
     return render_template('user.html', 
-                        title='User', 
-                        isSeller = isSeller,
-                        soldProducts=soldProducts,
-                        user=user, 
-                        form=form)
+                title='User', 
+                isSeller = isSeller, #if true, displays soldProducts
+                soldProducts=soldProducts,
+                user=user, 
+                form=form,
+                sellerReviews = sellerReviews,
+                sellerReviewExists = reviewForSellerExists,
+                sellerAvgRating = sellerAvgRating,
+                sellerNumReviews = sellerNumReviews,
+                canReviewThisSeller = canReviewThisSeller)
+
+
 class SearchPurchaseForm(FlaskForm):
     keyword = StringField('Search Past Purchases', validators=[])
     submit = SubmitField('Search')
@@ -150,37 +244,52 @@ class SearchPurchaseForm(FlaskForm):
 @bp.route('/purchasehistory', methods=['GET', 'POST'])
 @bp.route('/purchasehistory/<action>', methods=['GET', 'POST'])
 def purchasehistory(action=None):
-    user = User.get(current_user.id)
-    datefilter = "all"
+    #defaults
+    datefilter="all"
+    sortby="time"
+
     form = SearchPurchaseForm()
-
-    if request.method == "POST":
-        if action=="filterdate":
-            if 'dateFilter' in request.form:
-                datefilter=request.form['dateFilter']
-                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter)
-                return render_template('userpurchases.html', 
-                            title='User Purchases',
-                            currDatefilter=datefilter,
-                            purchase_history=purchases,
-                            form=form)
-
-    if form.validate_on_submit():
-        if len(form.keyword.data.strip()) > 0:
-            purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, form.keyword.data.strip())
-            print(purchases)
-            if len(purchases) == 0:
-                flash(f"No Items Found")
-            return render_template('userpurchases.html', 
+    if not current_user.is_authenticated:
+        return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
+                        purchase_history=[],
+                        form=form)
+
+    user = User.get(current_user.id)
+    if request.method == "POST":
+        if action=="filterSort":
+            if 'dateFilter' in request.form:
+                datefilter=request.form['dateFilter']
+                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby)
+            if 'sortby' in request.form:
+                sortby=request.form['sortby']
+                purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby)
+            return render_template('purchasehistory.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        currSortBy=sortby,
                         purchase_history=purchases,
                         form=form)
 
-    purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter)
-    return render_template('userpurchases.html', 
+    if form.validate_on_submit():
+        if len(form.keyword.data.strip()) > 0:
+            purchases = Purchase.get_all_purchases_by_user(current_user.id, datefilter, sortby, form.keyword.data.strip())
+            print(purchases)
+            if len(purchases) == 0:
+                flash(f"No Items Found")
+            return render_template('purchasehistory.html', 
                         title='User Purchases',
                         currDatefilter=datefilter,
+                        currSortBy=sortby,
+                        purchase_history=purchases,
+                        form=form)
+
+    purchases = Purchase.get_all_purchases_by_user(current_user.id,datefilter, sortby)
+    return render_template('purchasehistory.html', 
+                        title='User Purchases',
+                        currDatefilter=datefilter,
+                        currSortBy=sortby,
                         purchase_history=purchases,
                         form=form)
 

@@ -31,6 +31,7 @@ WHERE user_id = :user_id AND product_id = :id
         return redirect(url_for('inventory.seller'))
 
 
+
 class Fulfillment:
     def __init__(self, user_id, order_id, address,name, fulfillment_status, time_stamp, total_items, product_id):
         self.user_id = user_id #from orders, this is the BUYER
@@ -40,6 +41,7 @@ class Fulfillment:
         self.fulfillment_status = fulfillment_status #from purchases
         self.time_stamp = time_stamp #from orders
         self.total_items = total_items #from orders 
+        self.product_id = product_id
         self.product_id = product_id
 
     @staticmethod
