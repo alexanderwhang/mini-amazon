@@ -19,7 +19,7 @@ bp = Blueprint('inventory', __name__)
 @bp.route('/seller', methods=['GET', 'POST'])
 @bp.route('/seller/<action>/<user_id>/<product_id>', methods=['GET', 'POST'])
 @bp.route('/seller/<action>/<user_id>/<product_id>/<order_id>', methods=['GET', 'POST'])
-def seller(action = None, user_id = None, product_id = None, order_id = None, quantity = 1):
+def seller(action = None, user_id = None, product_id = None, order_id = None, quantity = 1, price = None):
     # get all available products for sale:
     inventory = Inventory.get_all_inventories_by_user(current_user.id)
     #delete = Inventory.remove_product(current_user.id)
@@ -46,6 +46,16 @@ def seller(action = None, user_id = None, product_id = None, order_id = None, qu
             WHERE user_id = :user_id AND id = :product_id
             ''', user_id = user_id, product_id = product_id, quantity= quantity)
             return redirect(url_for('inventory.seller'))
+        if action == 'price':
+            price = request.form['quant']
+            if price == '':
+                price = 1
+            app.db.execute('''
+            UPDATE Products
+            SET price = :price
+            WHERE user_id = :user_id AND id = :product_id
+            ''', user_id = user_id, product_id = product_id, price= price)
+            return redirect(url_for('inventory.seller'))
         if action == 'edit':
             app.db.execute('''
             UPDATE Purchases
@@ -56,6 +66,7 @@ def seller(action = None, user_id = None, product_id = None, order_id = None, qu
 
 
     # render the page by adding information to the index.html file
+    print("newThing")
     return render_template('inventory.html',
                            purchase_history=fulfillment,
                            all_products = inventory)
@@ -86,7 +97,7 @@ def addinventory():
                         form.quantity.data.strip()
                         )
             if ret is not None:
-                flash('User Information Updated')
+                flash('Inventory Information Updated')
             return redirect(url_for('inventory.addinventory'))
         except BadUpdateException as e:
             flash(e.toString())

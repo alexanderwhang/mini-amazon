@@ -16,7 +16,7 @@ class Inventory:
         rows = app.db.execute('''
 SELECT Users.id, Products.id, Products.name, Products.price, Products.quantity
 FROM Users, Products
-WHERE Products.user_id = :user_id AND Users.id = Products.id
+WHERE Products.user_id = :user_id AND Users.id = :user_id
 ''',
                               user_id=user_id)
         return [Inventory(*row) for row in rows]
