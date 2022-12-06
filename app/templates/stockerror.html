@@ -12,10 +12,12 @@
     </thead>
     <tbody>
         {% for product in unavailable%}
-        <td scope="row">{{product.name}}</td>
-        <td>{{product.have}}</td>
-        <td>{{product.needed}}</td>
-        <td>{{product.avail}}</td>
+        <tr>
+            <td scope="row">{{product.name}}</td>
+            <td>{{product.have}}</td>
+            <td>{{product.needed}}</td>
+            <td>{{product.avail}}</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
