@@ -14,7 +14,8 @@ fake = Faker()
 def get_csv_writer(f):
     return csv.writer(f, dialect='unix')
 
-
+#generates num_users users. 50% chance that the user is a seller. 
+#returns the user_ids of sellers as a list of integers
 def gen_users():
     sellers = []
     with open('Users.csv', 'w') as f:
@@ -40,7 +41,12 @@ def gen_users():
         print(f'{num_users} users generated')
     return sellers
 
-
+#generates num_products products. Returns list of product ids
+#Randomly assigns a seller to the product
+#price is randomly generated between $0.00 and $500.99
+#also generates a random category for the products -> this is added to the Categories table
+#all images are "image not found"
+#50% chance that item is available. if so, quantity is zero
 def gen_products(sellers):
     available_pids = {}
     categoriesFile = open('Categories.csv', 'w')
@@ -60,7 +66,7 @@ def gen_products(sellers):
                 categories.add(category)
                 categories_writer.writerow([category])
             description = fake.sentence(nb_words=4)[:-1]
-            price = f'{str(fake.random_int(max=500))}.{fake.random_int(max=99):02}'
+            price = f'{str(fake.random_int(min=0,max=500))}.{fake.random_int(min=0,max=99):02}'
             imageurl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwWxCMRrygVbR-7SLPx5N44x4I6BQjDDzWVAvEUZI3&s"
             quantity = 0
             available = fake.random_element(elements=('true', 'false'))
@@ -76,6 +82,9 @@ def gen_products(sellers):
         categoriesFile.close()
     return available_pids
 
+#generates 1-10 purchases for each order. returns a map<order_id, list of (product_id, quantity) tuples>
+#randomly selects products from available_pids
+#randomly generate quantity bought and fulfillment_status
 def gen_purchases(available_pids):
     purchases = {}
     with open('Purchases.csv', 'w') as f:
@@ -91,6 +100,9 @@ def gen_purchases(available_pids):
                 writer.writerow([id, pid, quantity, fStatus])
         print(f'purchases generated')
     return purchases
+
+#given purchases and product_ids, return map<user_id, list of pids>
+#purchases are randomly assigned to users
 
 def gen_orders(purchases, products):
     orders = {}
@@ -116,6 +128,8 @@ def gen_orders(purchases, products):
         print('generated orders')
     return orders
 
+#given map<user_id, list of pids>
+#33% chance the user writes a review for a pid
 def gen_reviews(orders):
     with open('Review.csv', 'w') as f:
         writer = get_csv_writer(f)
@@ -134,6 +148,8 @@ def gen_reviews(orders):
         print('generated reviews')
     return 
 
+#generates fake carts (items that a user has not yet purchased).
+#extrapolated from the generated orders<user_id, list pids>
 def gen_carts(orders):
     with open('Carts.csv', 'w') as f:
         writer = get_csv_writer(f)
@@ -148,6 +164,7 @@ def gen_carts(orders):
         print('generated carts')
     return 
 
+#generates saved carts
 def gen_save(orders):
     with open('Save.csv', 'w') as f:
         writer = get_csv_writer(f)

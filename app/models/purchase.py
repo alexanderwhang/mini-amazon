@@ -15,11 +15,14 @@ class Purchase:
         self.sellerid = sellerid # From Products
         self.time_stamp = time_stamp
 
+    #method for getting a user's purchase history. returns a list of Purchase objects
     @staticmethod
     def get_all_purchases_by_user(user_id, datefilter=None,sortby=None,keyword=None):
-        interval = "" #finds all historic purchases
-        keywordSearch = "" #finds all purchases
-        orderby = ""
+        interval = "" #finds all historic purchases by default
+        keywordSearch = "" #finds all purchases by default
+        orderby = "order by time_stamp DESC" #order by time stamp desc by default
+
+        #translating the datefilter type to sql
         if datefilter is not None:
             if datefilter=='month':
                 interval = "and time_stamp >= current_date - interval '1 months'"
@@ -28,6 +31,7 @@ class Purchase:
             elif datefilter=='year':
                 interval = "and time_stamp >= current_date - interval '1 years'"
 
+        #translating the sortby type to sql
         if sortby is not None:
             if sortby=='time':
                 orderby = "order by time_stamp DESC"
@@ -46,6 +50,7 @@ class Purchase:
             elif sortby=='totalPrice':
                 orderby = "order by total_price DESC"
 
+        #when user has entered a keyword to search, add an additional where clause
         if keyword is not None:
             rows = app.db.execute(f'''
             with userOrders as (
@@ -75,7 +80,7 @@ class Purchase:
             {orderby}
             ''',
                                 user_id=user_id, keyword=f"%{keyword}%")
-        else:
+        else:#when user has not entered a keyword to search, no additional where clause
             rows = app.db.execute(f'''
             with userOrders as (
                 SELECT id as order_id, time_stamp
@@ -99,8 +104,7 @@ class Purchase:
             where 
                 Purchases.order_id = userOrders.order_id
                 and Purchases.pid = Products.id
-                {keywordSearch}
-            {orderby}
+                {orderby}
             ''',
                                 user_id=user_id)
         return [Purchase(*row) for row in rows]
@@ -118,6 +122,7 @@ class Purchase:
         )
         return rows[0][0]
 
+    #method for getting all purchases of a given order. returns a list of Purchase objects
     @staticmethod
     def get_all_purchases_by_order(order_id):
         rows = app.db.execute('''

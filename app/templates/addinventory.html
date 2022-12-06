@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
 
 <h1>Add Inventory</h1>
 
@@ -61,6 +62,8 @@
   </p>
   <p>{{ form.submit() }}</p>
 </form>
-
+{% else %}
+<p><a href="{{ url_for('users.login') }}">Log in</a> to add an item to your store!</p>
+{% endif %}
 
 {% endblock %}

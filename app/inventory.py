@@ -31,7 +31,7 @@ def seller():
                            purchase_history=fulfillment,
                            all_products = inventory)
 
-
+#form for adding a new product to the Products Table
 class AddInventoryForm(FlaskForm):
     name = StringField('Item Name', validators=[DataRequired()])
     category = StringField('Category', validators=[DataRequired()])
@@ -50,11 +50,13 @@ class EditQuantityForm(FlaskForm):
     quantity = StringField('Quantity', validators=[DataRequired()])
     submit = SubmitField('Register Item')
 
+#page for adding a new product to the Products table
 @bp.route('/addinventory', methods=['GET', 'POST'])
 def addinventory():
     form = AddInventoryForm()
     if form.validate_on_submit():
         try:
+            #try to add a product. 
             ret = Product.add_product(current_user.id,
                         form.name.data.strip(), 
                         form.category.data.strip(),
@@ -66,7 +68,8 @@ def addinventory():
             if ret is not None:
                 flash('User Information Updated')
             return redirect(url_for('inventory.seller'))
-        except BadUpdateException as e:
+        except BadUpdateException as e: 
+            #if any of inputs are invalid, show the error message and abort the addition of the new product
             flash(e.toString())
     return render_template('addinventory.html', form=form)
 
