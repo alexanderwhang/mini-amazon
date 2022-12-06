@@ -5,7 +5,6 @@ import datetime
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 
 from .models.product import Product
-from .models.order import Order
 from .models.purchase import Purchase
 from .models.user import User
 from .models.review import Review

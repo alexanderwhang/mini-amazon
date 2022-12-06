@@ -6,6 +6,7 @@
     <thead class="thead-dark">
       <tr>
         <th scope="col">Product Name</th>
+        <th scope="col">Seller ID</th>
         <th scope="col">Product Price</th>
         <th scope="col">Quantity</th>
         <th scope="col">Subtotal</th>
@@ -16,6 +17,7 @@
       {% for pur in purchases%}
         <tr>
           <td>{{pur.product_name}}</td>
+          <td><a href="{{ url_for('users.user', sellerid = pur.sellerid) }}" type="button" class="btn btn-light">{{pur.sellerid}}</a></td>
           <td>{{pur.product_price}}</td>
           <td>{{pur.quantity}}</td>
           <td>{{pur.total_price}}</td>

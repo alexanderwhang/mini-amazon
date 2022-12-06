@@ -2,7 +2,7 @@
 
 {% block content %}
 <br><br>
-<h2>Products for sale:</h2>
+<!-- <h2>Products for sale:</h2>
 <table class='table table-hover table-bordered container'>
   <thead class="thead-dark">
 	<tr>
@@ -20,7 +20,7 @@
 	</tr>
     {% endfor %}
   </tbody>
-</table>
+</table> -->
 
 <br><br>
 
@@ -61,6 +61,8 @@
 		<th scope="col">Review Content</th>
 		<th scope="col">Review Rating</th>
 		<th scope="col">Edit Review</th>
+		<th scope="col">Delete Review</th>
+		<th scope="col">Image</th>
 	</tr>
   </thead>
   <tbody>
@@ -70,7 +72,15 @@
 		<th>{{review.review_time}}</th>
 		<th>{{review.review_content}}</th>
 		<th>{{review.review_rating}}</th>
-		<th><a href="{{ url_for('review.editreview', review_id = review.id) }}" type="button" class="btn btn-light">Edit</a></th>
+		<th><a href="{{ url_for('review.editreview', product_id = review.pid) }}" type="button" class="btn btn-light">Edit</a></th>
+		<th><a href="{{ url_for('review.deletereview', review_id = review.id) }}" type="button" class="btn btn-light">Delete</a></th>
+		{% if review.review_image == "" %}
+			<th></th>
+		{% else %}
+			<th>
+				<img src={{review.review_image}} alt="Product Image" width="50rem" height="50rem">
+			</th>
+		{% endif %}
 	</tr>
     {% endfor %}
   </tbody>

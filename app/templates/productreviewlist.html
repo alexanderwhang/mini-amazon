@@ -12,7 +12,9 @@
 		<th scope="col">Review Rating</th>
 		{% if curruserid is defined %}
 		<th scope="col">Edit Review</th>
+		<th scope="col">Delete Review</th>
 		{% endif %}
+		<th scope="col">Review Image</th>
 	</tr>
   </thead>
   <tbody>
@@ -23,8 +25,12 @@
 		<th>{{review.review_content}}</th>
 		<th>{{review.review_rating}}</th>
 		{% if curruserid == review.uid %}
-		<th><a href="{{ url_for('review.editreview', review_id = review.id) }}" type="button" class="btn btn-light">Edit</a></th>
+		<th><a href="{{ url_for('review.editreview', product_id = review.pid) }}" type="button" class="btn btn-light">Edit</a></th>
+		<th><a href="{{ url_for('review.deletereview', review_id = review.id) }}" type="button" class="btn btn-light">Delete</a></th>
 		{% endif %}
+		<th>
+			<img src={{review.review_image}} alt="Product Image" width="50rem" height="50rem">
+		</th>
 	</tr>
     {% endfor %}
   </tbody>

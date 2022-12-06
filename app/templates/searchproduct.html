@@ -36,26 +36,59 @@
         Price: {{products[0].price}}
     </span>
 </p>
-<br><br>
+
+<img {
+    float: left;
+    src={{products[0].imageurl}}
+    alt="Product Image"
+}>
 {% if products[0].quantity > 0 %}
-<p style="text-align:right;">
+<p style="text-align:left;">
     Buy Soon! Only {{products[0].quantity}} left!
 </p>
 {% else %}
-<p style="text-align:right;">
+<p style="text-align:left;">
     Currently out of stock. Check back later!
 </p>
 {% endif %}
-<br><br>
 <br><br>
 <p style="text-align:left;">
     <h2>Reviews:</h2>
 </p>
 <p style="text-align:left;">
     <h4>Average Rating: {{products[0].avg_rating}}</h4>
+    <h4>Number of Ratings: {{number_of_ratings}}</h4>
 </p>
 <p style="text-align:left;">
     <a href="{{ url_for('review.showproductreviews', product_id = products[0].product_id) }}" type="button" class="btn btn-light">View Reviews</a>
+    {% if products[0] is defined and current_user.is_authenticated %}
+        {% if user_review_exists != 0 %}
+            <a href="{{ url_for('review.editreview', product_id = products[0].product_id) }}" type="button" class="btn btn-light">Edit Review</a>
+            <a href="{{ url_for('review.deletereview', review_id = user_review[0].id) }}" type="button" class="btn btn-light">Delete Review</a>
+        {% else %}
+            <a href="{{ url_for('review.addreview', product_id = products[0].product_id) }}" type="button" class="btn btn-light">Add Review</a>
+        {% endif %}
+    {% endif %}
 </p>
+<br><br>
+<p style="text-align:left;">
+    <h2>Sellers:</h2>
+</p>
+<table id="products" class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Seller ID</th>
+            <th scope="col">Seller Name</th>
+            <th scope="col">Quantity Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{seller.id}}</td>
+            <td>{{seller.firstname}} {{seller.lastname}}</td>
+            <td>{{products[0].quantity}}</td>
+        </tr>
+    </tbody>
+</table>
 {% endif %}
 {% endblock %}

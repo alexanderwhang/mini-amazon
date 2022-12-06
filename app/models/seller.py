@@ -13,7 +13,7 @@ class Inventory:
     def get_all_inventories_by_user(user_id):
         #the colon in below area means that it is what is passed in
         rows = app.db.execute('''
-SELECT Users.user_id, Products.product_id, Products.name, Products.price, Products.quantity
+SELECT Users.id, Products.id, Products.name, Products.price, Products.quantity
 FROM Users, Products
 WHERE Products.user_id = :user_id AND Users.user_id = Products.user_id
 ''',
@@ -24,11 +24,10 @@ WHERE Products.user_id = :user_id AND Users.user_id = Products.user_id
     def remove_product(user_id, product_id):
         rows = app.db.execute('''
 DELETE FROM Products
-WHERE user_id = :user_id AND product_id = :product_id
+WHERE user_id = :user_id AND id = :product_id
 ''',
                               user_id =user_id, product_id = product_id)
         return redirect(url_for('inventory.seller'))
-
 
 class Fulfillment:
     def __init__(self, user_id, order_id, address,name, fulfillment_status, time_stamp, total_items, product_id):
@@ -47,10 +46,10 @@ class Fulfillment:
 SELECT Orders.user_id, Orders.order_id, Users.address, Products.name, Purchases.fulfillment_status, Orders.time_stamp, Orders.total_items, Products.product_id
 FROM Orders, Products, Purchases, Users
 WHERE (
-    Orders.order_id = Purchases.order_id AND
-    Products.user_id = Users.user_id AND
-    Products.product_id = Purchases.pid AND
-    Users.user_id = :user_id
+    Orders.id = Purchases.order_id AND
+    Products.user_id = Users.id AND
+    Products.id = Purchases.pid AND
+    Users.id = :user_id
 )
 ORDER BY Orders.time_stamp DESC
 ''',

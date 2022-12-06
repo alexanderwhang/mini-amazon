@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+<br></br>
+{% block content %}
+
+{% if current_user.is_authenticated %}
+	<form action="" method="post">
+		{{ form.hidden_tag() }}
+		<p>
+			{{ form.keyword.label }}<br />
+			{{ form.keyword(size=32) }}<br />
+			{% for error in form.keyword.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{% with messages = get_flashed_messages() %}
+			{% if messages %}
+			<ul>
+				{% for message in messages %}
+				<li>{{ message }}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{% endwith %}
+		</p>
+		<p>{{ form.submit() }}</p>
+	</form>
+
+	<h2>Purchase History:</h2>
+	<form method="post" action="{{url_for('users.purchasehistory', action='filterSort')}}">
+		<select id="dateFilter" name="dateFilter">
+			<option value='month' {% if currDatefilter=='month' %} selected="selected"{% endif %}>Last Month</option>
+			<option value='3month' {% if currDatefilter=='3month' %} selected="selected"{% endif %}>Last 3 Months</option>
+			<option value='year' {% if currDatefilter=='year' %} selected="selected"{% endif %}>Last Year</option>
+			<option value='all' {% if currDatefilter=='all' %} selected="selected"{% endif %}>All Purchases</option>
+		</select>
+		<select id="sortby" name="sortby">
+			<option value='time' {% if currSortBy=='time' %} selected="selected"{% endif %}>Sort By Purchase Time</option>
+			<option value='fulfillment' {% if currSortBy=='fulfillment' %} selected="selected"{% endif %}>Sort By Fulfillment Status</option>
+			<option value='productName' {% if currSortBy=='productName' %} selected="selected"{% endif %}>Sort By Product Name</option>
+			<option value='sellerID' {% if currSortBy=='sellerID' %} selected="selected"{% endif %}>Sort By Seller ID</option>
+			<option value='price' {% if currSortBy=='price' %} selected="selected"{% endif %}>Sort By Item Price</option>
+			<option value='totalPrice' {% if currSortBy=='totalPrice' %} selected="selected"{% endif %}>Sort By Total Item Price</option>
+		</select>
+		<input class="btn" type="submit" name="sortButton" value="Sort">
+	</form>
+
+	<table class='table table-hover table-bordered container'>
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Product Name</th>
+			<th scope="col">Seller ID</th>
+			<th scope="col">Price</th>
+			<th scope="col">Quantity</th>
+			<th scope="col">Total Price</th>
+			<th scope="col">Fulfillment Status</th>
+			<th scope="col">Time Stamp</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for purchase in purchase_history %}
+		<tr>
+			<th>{{purchase.product_name}}</th>
+			<td><a href="{{ url_for('users.user', sellerid = purchase.sellerid) }}" type="button" class="btn btn-light">{{purchase.sellerid}}</a></td>
+			<th>{{purchase.product_price}}</th>
+			<th>{{purchase.quantity}}</th>
+			<th>{{purchase.total_price}}</th>
+			<th>{{purchase.fulfillment_status}}</th>
+			<th>{{purchase.time_stamp}}</th>
+		</tr>
+		{% endfor %}
+	</tbody>
+	</table>
+{% else %}
+	<p><a href="{{ url_for('users.login') }}">Log in</a> to see your purchase history!</p>
+{% endif %}
+
+{% endblock %}

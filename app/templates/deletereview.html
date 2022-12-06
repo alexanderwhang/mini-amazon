@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p style="text-align:left;">
+   <h1>Are you sure you want to delete?</h1>
+</p>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+	<span>
+		<p>{{ form.deleteReview() }}</p>
+		<p>{{ form.cancelDeleteReview() }}</p>
+	</span>
+    
+	
+</form>
+{% endblock %}
