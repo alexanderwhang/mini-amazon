@@ -81,6 +81,7 @@ WHERE category = :cat
                                 cat=cat)
         return [Product(*row) for row in rows] if rows else None
 
+    #method to find all products sold by a user, and the number of reviews for the product. returns a list of Product objects
     @staticmethod
     def get_itemsSoldByUser(userid):
         rows = app.db.execute('''
@@ -94,16 +95,21 @@ group by p.id, user_id, category, name, description, price, imageurl, quantity, 
                               userid=userid)
         return [Product(*row) for row in rows]
 
+    #method for adding a product to the Products table
     @staticmethod
     def add_product(user_id, name, category, description, price, imageurl, quantity):
-        try:
+
+        #check that the quantity added is a valid integer
+        try: 
             quantity = int(quantity)
         except Exception as e:
             raise BadUpdateException("Quantity must be a number")
 
+        #check the quantity added is a positive number
         if quantity <= 0:
             raise BadUpdateException("Quantity must be greater than 0")
 
+        #check that the price of the new product is a valid float
         try:
             price = float(price)
         except Exception as e:
@@ -120,8 +126,6 @@ RETURNING id
             id = rows[0][0]
             return Product.get(id)
         except Exception as e:
-            # likely email already in use; better error checking and reporting needed;
-            # the following simply prints the error to the console:
             print(str(e))
             return None
 
