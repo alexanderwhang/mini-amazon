@@ -16,6 +16,7 @@ class Coupon(FlaskForm):
 @bp.route('/confirmorder', methods=['GET', 'POST'])
 @bp.route('/confirmorder/<action>/<uid>', methods=['GET', 'POST'])
 def confirmorder(action=None, uid=None):
+    uid = current_user.id
     user = User.get(current_user.id) # gets the user information
     cart = Cart.get_all_by_uid(current_user.id) # loads the user's cart
     #totalPrice = CartPrice.getPrice(current_user.id) # loads the total price of the user's cart
