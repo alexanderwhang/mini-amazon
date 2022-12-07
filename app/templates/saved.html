@@ -2,10 +2,15 @@
 
 {% block content %}
 
+<form action="{{url_for('cart.cart', uid=user.id)}}">
+    <input style="float:right;text-align:right;" class="btn" type="submit" name="back" value="Back to Cart">
+</form>
+
 <h2>Items Saved For Later:</h2>
 <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
         <th scope="col">Product Name</th>
+        <th scope="col"></th>
         <th scope="col">Product Price</th>
         <th scope="col">Time Saved</th>
         <th scope="col">Add to Cart?</th>
@@ -15,6 +20,9 @@
         {% for product in saved %}
         <tr>
             <td scope="row">{{product.name}}</td>
+            <th scope="row">
+                <img src="{{product.imageurl}}">
+            </th>
             <td scope="row">{{product.price}}</td>
             <td scope="row">{{product.time}}</td>
             <td>

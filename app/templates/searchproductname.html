@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Form to take keyword search input from user -->
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
@@ -23,12 +24,14 @@
 	</p>
 	<p>{{ form.submitName() }}</p>
 </form>
+<!-- If any products match the keyword provided -->
 {% if listofproducts[0] is defined %}
 <h2>Products Found:</h2>
 <table id="products" class='table table-hover table-bordered container'>
   <thead class="thead-dark">
 	<tr>
-		<th scope="col">Product Name</th>
+		<!-- Price and average rating are buttons to allow sorting -->
+		<th scope="col">Product Name and Image</th>
 		<th scope="col">Product Category</th>
 		<th><button onclick="sortProducts(2)">Price</button></th>
 		<th scope="col">Quantity Available</th>
@@ -38,7 +41,14 @@
   <tbody>
     {% for product in listofproducts %}
     <tr>
-        <td><a href="{{ url_for('searchproduct.searchbySKU', sku = product.product_id) }}" type="button" class="btn btn-light">{{product.name}}</a></td>
+		<!-- Each product in the list can be clicked to be taken to a detailed product page -->
+        <td><a href="{{ url_for('searchproduct.searchbySKU', sku = product.product_id) }}" type="button" class="btn btn-light">{{product.name}}</a>
+		<br>
+		<img {
+			float: left;
+			src={{product.imageurl}}
+			alt="Product Image"
+		}></td>
 		<td>{{product.category}}</td>
 		<td>{{product.price}}</td>
 		<td>{{product.quantity}}</td>
@@ -56,33 +66,39 @@
 		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
 		table = document.getElementById("products");
 		switching = true;
+		//Begin by sorting ascending
 		dir = "asc";
 		while (switching) {
 			switching = false;
 			rows = table.rows;
 			for (i = 1; i < (rows.length - 1); i++) {
+				//Skip table header, loop through all other rows
 				shouldSwitch = false;
 				x = rows[i].getElementsByTagName("td")[n];
 				y = rows[i + 1].getElementsByTagName("td")[n];
-				if (n == 2) {
+				if (n == 2) { //If sorting by price, compare numbers
 					if (dir == "asc") {
+						//Sort ascending price
 						if (Number(x.innerHTML) > Number(y.innerHTML)) {
 						shouldSwitch = true;
 						break;
 						}
 					} else if (dir == "desc") {
+						//Sort descending price
 						if (Number(x.innerHTML) < Number(y.innerHTML)) {
 						shouldSwitch = true;
 						break;
 						}
 					}
-				} else if (n == 4) {
+				} else if (n == 4) { //If sorting by review, compare letters (to account for "No Reviews")
 					if (dir == "asc") {
+						//Sort ascending review score
 						if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
 						shouldSwitch = true;
 						break;
 						}
 					} else if (dir == "desc") {
+						//Sort descending review score
 						if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
 						shouldSwitch = true;
 						break;
@@ -94,10 +110,12 @@
 				rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
 				switching = true;
 				switchcount ++;
+				//Keep track of switch count
 				} else {
 				if (switchcount == 0 && dir == "asc") {
 					dir = "desc";
 					switching = true;
+					//Allows switching between descending and ascending if the button is clicked again
 				}
 			}
 		}

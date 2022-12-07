@@ -19,6 +19,7 @@ class Product:
         self.avg_rating = avg_rating
         self.num_reviews = num_reviews
 
+    #get product by id
     @staticmethod
     def get(id):
         rows = app.db.execute('''
@@ -29,6 +30,7 @@ WHERE id = :id
                               id=id)
         return Product(*(rows[0])) if rows is not None else None
 
+    #get all products that are available for purchase
     @staticmethod
     def get_all(available=True):
         rows = app.db.execute('''
@@ -39,6 +41,7 @@ WHERE available = :available
                               available=available)
         return [Product(*row) for row in rows]
     
+    #get product by sku (same as get by id)
     @staticmethod
     def get_SKU(sku):
         rows = app.db.execute('''
@@ -49,6 +52,7 @@ WHERE id = :sku
                               sku=sku)
         return [Product(*row) for row in rows] if rows else None
 
+    #get products that match keyword in either name or description
     @staticmethod
     def get_Name(title):
         if title is not None:
@@ -63,6 +67,7 @@ ORDER BY name
                               title=title)
         return [Product(*row) for row in rows] if rows else None
 
+    #get list of all categories on the site
     @staticmethod
     def get_Cat():
         rows = app.db.execute('''
@@ -72,6 +77,7 @@ ORDER BY cat
 ''')
         return [Category(*row) for row in rows] if rows else None
 
+    #get list of all products in a category
     @staticmethod
     def getbyCat(cat):
         rows = app.db.execute('''
@@ -82,22 +88,23 @@ WHERE category = :cat
                                 cat=cat)
         return [Product(*row) for row in rows] if rows else None
     
+    #add products to the cart
     @staticmethod
-    def addCart(sku, uid):
+    def addCart(sku, uid): #check if the product is already in the cart
         existing = app.db.execute('''
 SELECT *
 FROM Carts
 WHERE uid = :uid AND pid = :sku
 ''',
                                 sku=sku, uid = uid)
-        if existing:
+        if existing: #if the product is already in the cart, just update the quantity
             app.db.execute('''
 UPDATE Carts
 SET quantity = quantity + :qty
 WHERE uid = :uid AND pid = :sku
 ''',
                                 sku=sku, uid = uid, qty=request.form['qty'])
-        else:
+        else: #if product is not yet in the cart, add a new entry to the database to add it to the cart
             app.db.execute('''
 INSERT INTO Carts (uid, pid, quantity, time_added_to_cart)
 VALUES (:uid, :sku, :qty, DATE_TRUNC('second', CURRENT_TIMESTAMP::timestamp))

@@ -29,6 +29,7 @@ def searchbySKU():
     sku = request.args.get('sku', None)
     uid = request.args.get('uid', None)
     if uid != None:
+        #uid only provided when add to cart method is used
         Product.addCart(sku, uid)
     if current_user.is_authenticated:
         user_id = Review.user_email_to_id(current_user.email)
@@ -36,6 +37,7 @@ def searchbySKU():
     user_review = None
     seller = None
     if sku != None:
+        #if sku is provided, that means we are coming from the search products page
         Review.update_product_ratings(sku) # Update product rating in database before displaying
         number_of_ratings = Review.count_num_ratings(sku)
         product = Product.get_SKU(sku)
@@ -44,9 +46,11 @@ def searchbySKU():
             user_review = Review.get_review(user_id, product[0].product_id)
         if product is None:
             flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
+            #flash error message if applicable
     else:    
+        #if no arguments are provided we are searching by form entry
         if SKUForm.validate_on_submit():
-            if len(SKUForm.productSKU.data.strip()) > 0:
+            if len(SKUForm.productSKU.data.strip()) > 0: #form entry is not empty
                 number_of_ratings = Review.count_num_ratings(SKUForm.productSKU.data.strip())
                 Review.update_product_ratings(SKUForm.productSKU.data.strip()) # Update product rating in database before displaying
                 product = Product.get_SKU(SKUForm.productSKU.data.strip())
@@ -55,8 +59,10 @@ def searchbySKU():
                     user_review = Review.get_review(user_id, SKUForm.productSKU.data.strip())
                 if product is None:
                     flash(f"Product with SKU {SKUForm.productSKU.data.strip()} not found")
+                    #error message if sku doesn't exist
     if product is not None:
         seller = User.get(product[0].user_id)
+        #allows us to display sellers selling the product
 
     return render_template('searchproduct.html', 
                         title='SearchSKU', 
@@ -73,16 +79,18 @@ def searchbyName():
     listofproducts = None
     cat = request.args.get('cat', None)
     if cat != None:
+        #means we are coming from the categories page
         listofproducts = Product.getbyCat(cat)
         if listofproducts is not None:
             for product in listofproducts:
                 Review.update_product_ratings(product.product_id) # Update product rating in database before displaying
         listofproducts = Product.getbyCat(cat)
     else:
+        #we are using the keyword inputted into the form
         if current_user.is_authenticated:
             user_id = Review.user_email_to_id(current_user.email)
         if NameForm.validate_on_submit():
-            if len(NameForm.productName.data.strip()) > 0:
+            if len(NameForm.productName.data.strip()) > 0: #if the form entry is not empty
                 listofproducts = Product.get_Name(NameForm.productName.data.strip())
                 if listofproducts is None:
                     flash(f"No products containing '{NameForm.productName.data.strip()}' found.")
@@ -99,6 +107,7 @@ def searchbyName():
 @bp.route('/browse', methods=['GET', 'POST'])
 def browse():
     listofcategories = Product.get_Cat()
+    #queries to get all categories on the site
 
     return render_template('browse.html', 
                         title='Browse', 

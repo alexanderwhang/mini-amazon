@@ -258,6 +258,7 @@ def user():
             except:
                 user = None
             if user is None:
+                #if no user is found, only display the search bar
                 flash(f"User {form.userId.data.strip()} not found")
                 return render_template('user.html', 
                     title='User', 
@@ -270,6 +271,7 @@ def user():
                     sellerNumReviews = sellerNumReviews,
                     canReviewThisSeller = canReviewThisSeller)
             else:
+                #when a user is found, see if they sell any products
                 soldProducts = getProductsOfSeller(user.id)
                 isSeller = True if len(soldProducts) > 0 else False 
 
