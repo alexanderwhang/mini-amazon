@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <!-- Display all categories found on the site, clicking one will take the user to a list of products in that category -->
     <h2>Categories:</h2>
     {% for category in listofcategories %}
         <a href="{{ url_for('searchproduct.searchbyName', cat = category.cat) }}" type="button" class="btn btn-light">{{category.cat}}</a>

@@ -12,10 +12,11 @@ bp = Blueprint('save', __name__)
 
 # the Save class has all the components to load the saved for later feature on our ecommerce site
 class Save:
-    def __init__(self, uid, pid, name, price, time):
+    def __init__(self, uid, pid, name, imageurl, price, time):
         self.uid = uid
         self.pid = pid
         self.name = name
+        self.imageurl = imageurl
         self.price = price
         self.time = time
     
@@ -23,7 +24,7 @@ class Save:
     @staticmethod
     def get_by_uid(uid):
         rows = app.db.execute('''
-SELECT uid, pid, name, price, time
+SELECT uid, pid, name, imageurl, price, time
 FROM Saved, Products
 WHERE uid = :uid
 AND Saved.pid = Products.id

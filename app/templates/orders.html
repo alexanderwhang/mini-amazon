@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
 <h2>{{user.firstname}} {{user.lastname}}'s Orders:</h2>
 <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
       <tr>
         <th scope="col">oid</th>
-        <th scope="col">uid</th>
         <th scope="col">Total Price</th>
         <th scope="col">Total Items</th>
         <th scope="col">Time Ordered</th>
@@ -18,7 +18,6 @@
       {% for order in orders%}
         <tr>
           <td scope="row">{{order.oid}}</td>
-          <td>{{order.uid}}</td>
           <td>{{order.tot_price}}</td>
           <td>{{order.tot_items}}</td>
           <td>{{order.time}}</td>
@@ -32,4 +31,7 @@
       {% endfor %}
     </tbody>
   </table>
+{% else %}
+<p><a href="{{ url_for('users.login') }}">Log in</a> to see orders!</p>
+{% endif %}
 {% endblock %}
