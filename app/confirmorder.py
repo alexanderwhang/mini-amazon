@@ -10,48 +10,44 @@ from flask import Blueprint
 from flask_sqlalchemy import SQLAlchemy
 bp = Blueprint('confirmorder', __name__)
 
+# the Coupon class allows a coupon to be typed into a field
 class Coupon(FlaskForm):
     coupon = StringField('Promotional Coupon Code:', validators=[])
 
 @bp.route('/confirmorder', methods=['GET', 'POST'])
 @bp.route('/confirmorder/<action>/<uid>', methods=['GET', 'POST'])
 def confirmorder(action=None, uid=None):
-    uid = current_user.id
+    uid = current_user.id # loads the user's id
     user = User.get(current_user.id) # gets the user information
     cart = Cart.get_all_by_uid(current_user.id) # loads the user's cart
     totalPrice = CartPrice.getPrice(current_user.id) # loads the total price of the user's cart
-    # app.db.execute('''INSERT INTO Discount (uid, price)
-    # VALUES (:uid, :totalprice)
-    # ''', uid=current_user.id, totalprice=CartPrice.getPrice(current_user.id))
+    discount = 0 # variable to keep track of if a coupon was used
+    couponDict = {'HOLIDAYS': 0.8, 'WINTER22': 0.78, '20OFF': 0.8, 'HALFOFF': 0.5} # tracks the available coupons
+    percDict = {'HOLIDAYS': '20%', 'WINTER22': '22%', '20OFF': '20%', 'HALFOFF': '50%'}
 
-    # prices = app.db.execute('''SELECT price
-    # FROM Discount
-    # WHERE uid = :uid
-    # ORDER BY price ASC
-    # ''', uid=current_user.id)
-    # totalPrice = float(*prices[0])
-    discount = 0
-    couponDict = {'a': 0.1, 'HOLIDAYS': 0.8, 'WINTER22': 0.78, '20OFF': 0.8, 'HALFOFF': 0.5}
-
-    form = Coupon()
+    form = Coupon() # type in coupons
     
+    # the posting methods allow for coupons to be applied and carts to be purchased
     if request.method == "POST":
+        # apply a coupon
         if action == 'coupon':
             if form.validate_on_submit:
-                code = form.coupon.data.strip()
+                code = form.coupon.data.strip() # gets what was typed into the field
+                
+                # if a coupon was already used, you cannot use another coupon
                 if discount == 1:
                     flash('You already have a coupon applied!')
                     return redirect(url_for('confirmorder.confirmorder'))
+
+                # if coupon is a valid coupon
                 elif code in couponDict:
-                    discount = 1
+                    discount = 1 # set variable so you can't use another coupon
                     multiplier = couponDict[code]
                     discountedPrice = '%.2f' % (multiplier * float(totalPrice))
-
-                    # app.db.execute('''INSERT INTO Discount (uid, price)
-                    # VALUES (:uid, :totalprice)
-                    # ''', uid=current_user.id, totalprice=discountedPrice)
-                    print("applied coupon", discountedPrice)
+                    flash('You saved {}!'.format(percDict[code]))
                     return render_template('confirmorder.html', title='Cart', user=user, cart=cart, totalPrice=discountedPrice, form=form)
+                
+                # coupon is invalid
                 else:
                     flash('Invalid coupon code!')
                     return redirect(url_for('confirmorder.confirmorder'))
@@ -62,9 +58,11 @@ def confirmorder(action=None, uid=None):
             if len(cart) == 0:
                 flash('Add items to your cart before ordering!')
                 return redirect(url_for('confirmorder.confirmorder'))
-
+            
+            # sees if a discount was applied or not
             if 'totalPrice' in request.form:
                 totalPrice = request.form['totalPrice']
+            
             unavailable = []
 
             # this query checks to see if a user has enough to pay for the order
@@ -145,10 +143,5 @@ def confirmorder(action=None, uid=None):
                     app.db.execute('''DELETE FROM Carts
                     WHERE uid = :uid
                     ''', uid=uid)
-
-                    # app.db.execute('''DELETE FROM Discount
-                    # WHERE uid = :uid
-                    # ''', uid=uid)
                     return render_template('successfulorder.html', oid=oid, totalPrice=totalPrice)
-
     return render_template('confirmorder.html', title='Cart', user=user, cart=cart, totalPrice=totalPrice, form=form)

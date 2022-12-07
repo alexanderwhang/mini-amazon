@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated %}
 <h2>Order ID: {{purchases[0].order_id}}</h2>
 <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
@@ -25,6 +26,9 @@
       {% endfor %}
     </tbody>
   </table>
-  <h4>{{totalPrice}}</h4>
+  <h4>Total price: ${{totalPrice}}</h4>
   <h4>Overall purchase status: {{status}}</h4>
+{% else %}
+<p><a href="{{ url_for('users.login') }}">Log in</a> to see your purchases!</p>
+{% endif %}
 {% endblock %}
