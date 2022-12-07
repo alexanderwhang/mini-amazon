@@ -12,23 +12,26 @@ from .models.user import User
 from flask import Blueprint
 bp = Blueprint('review', __name__)
 
+# This is the Edit Review form
 class EditReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[DataRequired()])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
     newImage = StringField('Enter New Image URL')
     submitReview = SubmitField('Submit')
 
+# This is the Add Review form
 class AddReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
     newImage = StringField('Enter New Image URL')
     submitReview = SubmitField('Submit')
 
+# This is the Delete Review form
 class DeleteReview(FlaskForm):
     deleteReview = SubmitField('Delete')
     cancelDeleteReview = SubmitField('Cancel')
     
-
+# This is the Edit Review route which will check the form and submit the data to back-end functions
 @bp.route('/editreview', methods=['GET', 'POST'])
 def editreview():
     editReviewForm = EditReview()
@@ -42,6 +45,7 @@ def editreview():
     return render_template('editreview.html', 
                         form = editReviewForm)
 
+# This is the Add Review route which will check the form and submit the data to back-end functions
 @bp.route('/addreview', methods=['GET', 'POST'])
 def addreview():
     addReviewForm = AddReview()
@@ -55,6 +59,7 @@ def addreview():
     return render_template('addreview.html', 
                         form = addReviewForm)
 
+# This is the Delete Review route which will check the form and submit the data to back-end functions
 @bp.route('/deletereview', methods=['GET', 'POST'])
 def deletereview():
     deleteReviewForm = DeleteReview()
@@ -69,6 +74,7 @@ def deletereview():
     return render_template('deletereview.html', 
                         form = deleteReviewForm)
 
+# This is the Show Product Review route which will show a list of all product reviews
 @bp.route('/showproductreviews', methods=['GET', 'POST'])
 def showproductreviews():
     product_id = request.args.get('product_id', None)
