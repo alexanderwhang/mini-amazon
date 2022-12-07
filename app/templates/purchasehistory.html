@@ -55,6 +55,7 @@
 			<th scope="col">Total Price</th>
 			<th scope="col">Fulfillment Status</th>
 			<th scope="col">Time Stamp</th>
+			<th scope="col">See Order</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -67,6 +68,7 @@
 			<th>{{purchase.total_price}}</th>
 			<th>{{purchase.fulfillment_status}}</th>
 			<th>{{purchase.time_stamp}}</th>
+			<td><a href="{{url_for('purchase.purchase', oid=purchase.order_id)}}" type="button" class="btn btn-light">{{purchase.order_id}}</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>
