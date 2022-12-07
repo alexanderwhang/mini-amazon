@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+<h2>{{user.firstname}} {{user.lastname}}'s Order:</h2>
+<form action="{{url_for('cart.cart', uid=user.id)}}">
+  <input style="float:right;text-align:right;" class="btn" type="submit" name="back" value="Back to Cart">
+</form>
+  <table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Product Name</th>
+        <th scope="col">Product Price</th>
+        <th scope="col">Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in cart%}
+        <tr>
+          <th scope="row"><a href="{{ url_for('searchproduct.searchbySKU', sku = product.pid) }}" type="button" class="btn btn-light">{{product.name}}</a></th>
+          <td>{{product.price}}</td>
+          <td>{{product.quantity}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+<h4 id="orderPrice">Total cart price: ${{totalPrice}}</h4>
+
+<form method="POST" action="{{url_for('confirmorder.confirmorder', action='coupon', uid=user.id)}}">
+  {{ form.csrf_token }}
+  <p>
+    {{form.coupon.label}}<br />
+    {{form.coupon(size=32)}}
+  </p>
+
+  <p>
+    <input type="submit" value="Apply">
+  </p>
+</form> 
+
+<p>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+</p>
+
+<form method="POST" action="{{url_for('confirmorder.confirmorder', action='confirm', uid=user.id)}}">
+  <input class="btn" type="submit" name="order" value="Confirm Order">
+  <input class="price" type="hidden" name="totalPrice" value={{totalPrice}}>
+</form>
+{% else %}
+<p><a href="{{ url_for('users.login') }}">Log in</a> to order!</p>
+{% endif %}
+
+{% endblock %}
