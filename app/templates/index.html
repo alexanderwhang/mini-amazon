@@ -1,28 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<br><br>
-<!-- <h2>Products for sale:</h2>
-<table class='table table-hover table-bordered container'>
-  <thead class="thead-dark">
-	<tr>
-		<th scope="col">Product Name</th>
-		<th scope="col">Price</th>
-		<th scope="col">Quantity</th>
-	</tr>
-  </thead>
-  <tbody>
-    {% for product in all_products%}
-    <tr>
-		<th>{{product.name}}</th>
-		<th>{{product.price}}</th>
-		<th>{{product.quantity}}</th>
-	</tr>
-    {% endfor %}
-  </tbody>
-</table> -->
-
-<br><br>
 
 {% if current_user.is_authenticated %}
 <h2>Purchase History:</h2>
@@ -81,6 +59,33 @@
 				<img src={{review.review_image}} alt="Product Image" width="50rem" height="50rem">
 			</th>
 		{% endif %}
+	</tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Aaric's Seller Reviews List -->
+<h2>Seller Reviews:</h2>
+<table class='table table-hover table-bordered container'>
+  <thead class="thead-dark">
+	<tr>
+		<th scope="col">Seller ID</th>
+		<th scope="col">Review Time</th>
+		<th scope="col">Review Content</th>
+		<th scope="col">Review Rating</th>
+		<th scope="col">Edit Review</th>
+		<th scope="col">Delete Review</th>
+	</tr>
+  </thead>
+  <tbody>
+    {% for review in all_user_sellerreviews %}
+    <tr>
+		<th>{{review.sellerid}}</th>
+		<th>{{review.review_time}}</th>
+		<th>{{review.review_content}}</th>
+		<th>{{review.review_rating}}</th>
+		<th><a href="{{ url_for('sellerreview.editsellerreview', sellerid = review.sellerid) }}" type="button" class="btn btn-light">Edit</a></th>
+		<th><a href="{{ url_for('sellerreview.deletesellerreview', sellerid = review.sellerid, user_id = current_user.id) }}" type="button" class="btn btn-light">Delete</a></th>
 	</tr>
     {% endfor %}
   </tbody>

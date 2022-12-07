@@ -9,6 +9,18 @@ class SellerReview:
         self.review_content = review_content
         self.review_rating = review_rating
 
+    @staticmethod
+    def get_all_by_uid(uid):
+        rows = app.db.execute (
+            '''
+            SELECT *
+            FROM SellerReview
+            WHERE uid = :uid
+            ORDER BY review_time DESC
+            ''',
+            uid=uid
+        )
+        return [SellerReview(*row) for row in rows]
 
     @staticmethod
     def review_exists_check(uid, sellerid):
