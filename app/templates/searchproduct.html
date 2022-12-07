@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Form to take SKU input from user -->
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
@@ -23,11 +24,13 @@
 	</p>
 	<p>{{ form.submitSKU() }}</p>
 </form>
+<!-- If user enters a valid SKU and the product is found -->
 {% if products[0] is defined %}
 <p style="text-align:left;">
     <h1>{{products[0].name}}</h1>
     {% if current_user.is_authenticated %}
     {% if products[0].quantity > 0 %}
+    <!-- Display add to cart button and dropdown menu for quantity if the user is logged in and quantity is not 0 -->
     <span style="float:right;">
         <form method="POST" action="{{url_for('searchproduct.searchbySKU', sku = products[0].product_id, uid = current_user.id)}}">
             <select id="qty"name="qty">
@@ -48,6 +51,7 @@
     {% endif %}
     {% endif %}
 </p>
+<!-- Display product description, price, and image -->
 <p style="text-align:left;">
     <h3>{{products[0].description}}</h3>
     <span style="float:right;">
@@ -60,6 +64,7 @@
     src={{products[0].imageurl}}
     alt="Product Image"
 }>
+<!-- If product is available (qty > 0) display a different message than if the product is out of stock -->
 {% if products[0].quantity > 0 %}
 <p style="text-align:left;">
     Buy Soon! Only {{products[0].quantity}} left!
@@ -89,6 +94,7 @@
     {% endif %}
 </p>
 <br><br>
+<!-- Display sellers that are offering the current product, along with the quantity each has available -->
 <p style="text-align:left;">
     <h2>Sellers:</h2>
 </p>
