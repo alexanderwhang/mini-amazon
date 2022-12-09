@@ -92,7 +92,7 @@ def logout():
 
 #form for editing a users information
 class EditProfileForm(FlaskForm):
-    newEmail = StringField('New Email', validators=[Email()])
+    newEmail = StringField('New Email', validators=[])
     newPassword = PasswordField('New Password', validators=[])
     newAddress = StringField('New Address', validators=[])
     newFirstName = StringField('New First Name', validators=[])

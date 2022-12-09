@@ -1,9 +1,10 @@
 from flask_login import UserMixin
 from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
-
+import re
 from .. import login
 
+email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 class User(UserMixin):
     def __init__(self, id, email, firstname, lastname, address, seller, balance):
@@ -101,6 +102,8 @@ WHERE id = :id
         #   - not the same as the old email
         #   - not an email that exists in the database for a different user
         if len(newEmail) > 0:
+            if not re.fullmatch(email_regex, newEmail):
+                raise BadUpdateException("Invalid email")
             if newEmail == oldemail:
                 raise BadUpdateException("New email can't be old email")
             if User.email_exists(newEmail):
