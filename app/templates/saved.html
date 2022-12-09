@@ -19,7 +19,7 @@
     <tbody>
         {% for product in saved %}
         <tr>
-            <td scope="row">{{product.name}}</td>
+            <td scope="row"><a href="{{ url_for('searchproduct.searchbySKU', sku = product.pid) }}" type="button" class="btn btn-light">{{product.name}}</a></td>
             <th scope="row">
                 <img src="{{product.imageurl}}">
             </th>

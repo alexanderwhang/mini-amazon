@@ -1,8 +1,9 @@
 from flask import current_app as app
 
 class Purchase:
-    def __init__(self, order_id, product_name, product_price, quantity, total_price, fulfillment_status, sellerid, time_stamp=None):
+    def __init__(self, order_id, pid, product_name, product_price, quantity, total_price, fulfillment_status, sellerid, time_stamp=None):
         self.order_id = order_id
+        self.pid = pid #from product
         self.product_name = product_name #from product
         self.product_price= product_price #from product
         self.quantity = quantity
@@ -56,7 +57,8 @@ class Purchase:
                 {interval}
             )
             select 
-                userOrders.order_id as order_id, 
+                userOrders.order_id as order_id,
+                Products.id as pid,
                 Products.name as product_name, 
                 Products.price as product_price, 
                 Purchases.quantity as quantity, 
@@ -85,7 +87,8 @@ class Purchase:
                 {interval}
             )
             select 
-                userOrders.order_id as order_id, 
+                userOrders.order_id as order_id,
+                Products.id as pid,
                 Products.name as product_name, 
                 Products.price as product_price, 
                 Purchases.quantity as quantity, 
@@ -124,6 +127,7 @@ class Purchase:
         rows = app.db.execute('''
 select 
     order_id as order_id, 
+    Products.id as pid,
     Products.name as product_name, 
     Products.price as product_price, 
     Purchases.quantity as quantity, 

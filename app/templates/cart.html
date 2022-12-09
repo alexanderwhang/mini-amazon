@@ -77,7 +77,9 @@
   {% endwith %}
 </p>
 
+{% if cart|length > 0 %}
 <form action="{{url_for('confirmorder.confirmorder')}}">
   <input class="btn" type="submit" name="order" value="Proceed to Checkout">
 </form>
+{% endif %}
 {% endblock %}

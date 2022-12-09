@@ -17,7 +17,7 @@
     <tbody>
       {% for pur in purchases%}
         <tr>
-          <td>{{pur.product_name}}</td>
+          <td><a href="{{ url_for('searchproduct.searchbySKU', sku = pur.pid) }}" type="button" class="btn btn-light">{{pur.product_name}}</a></td>
           <td><a href="{{ url_for('users.user', sellerid = pur.sellerid) }}" type="button" class="btn btn-light">{{pur.sellerid}}</a></td>
           <td>{{pur.product_price}}</td>
           <td>{{pur.quantity}}</td>
