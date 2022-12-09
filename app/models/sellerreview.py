@@ -1,5 +1,7 @@
 from flask import current_app as app
 
+# This is the seller review class with backend functions to 
+# get data from the database or update data in the database
 class SellerReview:
     def __init__(self, id, uid, sellerid, review_time, review_content, review_rating):
         self.id = id
@@ -9,7 +11,21 @@ class SellerReview:
         self.review_content = review_content
         self.review_rating = review_rating
 
+    # Function to get all seller reviews mapped to a user id given a user id
+    @staticmethod
+    def get_all_by_uid(uid):
+        rows = app.db.execute (
+            '''
+            SELECT *
+            FROM SellerReview
+            WHERE uid = :uid
+            ORDER BY review_time DESC
+            ''',
+            uid=uid
+        )
+        return [SellerReview(*row) for row in rows]
 
+    # Function to give the number of reviews given a sellerid and a user id
     @staticmethod
     def review_exists_check(uid, sellerid):
         rows = app.db.execute (
@@ -51,6 +67,7 @@ class SellerReview:
                     return True
         return False
 
+    # Function to get all seller reviews mapped to a sellerid given a sellerid
     @staticmethod
     def get_all_seller_reviews(sellerid):
         rows = app.db.execute(
@@ -63,6 +80,7 @@ class SellerReview:
         )
         return [SellerReview(*row) for row in rows]
 
+    # Function that updates a existing review with new data
     @staticmethod
     def edit_seller_review(user_id, sellerid, new_review, new_rating):
         app.db.execute (
@@ -82,6 +100,7 @@ class SellerReview:
         )
         return
 
+    # Function that adds new product review given new data
     @staticmethod
     def add_seller_review(user_id, sellerid, new_review, new_rating):
         app.db.execute (
@@ -96,6 +115,7 @@ class SellerReview:
         )
         return
 
+    # Function to delete existing reviews given a user_id and sellerid
     @staticmethod
     def delete_seller_review(user_id, sellerid):
         app.db.execute (

@@ -13,21 +13,24 @@ from .models.user import User
 from flask import Blueprint
 bp = Blueprint('sellerreview', __name__)
 
+# This is the Edit Review form
 class EditSellerReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[DataRequired()])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
     submitReview = SubmitField('Submit')
 
+# This is the Add Review form
 class AddSellerReview(FlaskForm):
     newReview = StringField('Enter New Review', validators=[])
     newRating = DecimalField('Enter New Rating', validators=[DataRequired(),  NumberRange(min=1, max=5)])
     submitReview = SubmitField('Submit')
 
+# This is the Delete Review form
 class DeleteSellerReview(FlaskForm):
     deleteReview = SubmitField('Delete')
     cancelDeleteReview = SubmitField('Cancel')
     
-
+# This is the Edit Review route which will check the form and submit the data to back-end functions
 @bp.route('/editsellerreview', methods=['GET', 'POST'])
 def editsellerreview():
     editSellerReviewForm = EditSellerReview()
@@ -39,7 +42,7 @@ def editsellerreview():
             return redirect(url_for('index.index'))
     return render_template('editsellerreview.html', 
                         form = editSellerReviewForm)
-
+# This is the Add Review route which will check the form and submit the data to back-end functions
 @bp.route('/addsellerreview', methods=['GET', 'POST'])
 def addsellerreview():
     addSellerReviewForm = AddSellerReview()
@@ -53,6 +56,7 @@ def addsellerreview():
     return render_template('addsellerreview.html', 
                         form = addSellerReviewForm)
 
+# This is the Delete Review route which will check the form and submit the data to back-end functions
 @bp.route('/deletesellerreview', methods=['GET', 'POST'])
 def deletesellerreview():
     deleteSellerReviewForm = DeleteSellerReview()

@@ -8,6 +8,7 @@ from .models.product import Product
 from .models.purchase import Purchase
 from .models.user import User
 from .models.review import Review
+from .models.sellerreview import SellerReview
 from .users import FindUserForm
 
 from flask import Blueprint
@@ -22,13 +23,15 @@ def index():
     if current_user.is_authenticated:
         orders = Purchase.get_all_purchases_by_user(Purchase.user_email_to_id(current_user.email))
         reviews = Review.get_all_by_uid(Review.user_email_to_id(current_user.email))
-        # print(current_user.email)
+        sellerreviews = SellerReview.get_all_by_uid(current_user.id)
     else:
         orders = None
         reviews = None
+        sellerreviews = None
     # render the page by adding information to the index.html file
     return render_template('index.html',
                            avail_products=products,
                            purchase_history=orders,
                            all_products = products,
-                           all_user_reviews = reviews)
+                           all_user_reviews = reviews,
+                           all_user_sellerreviews = sellerreviews)
